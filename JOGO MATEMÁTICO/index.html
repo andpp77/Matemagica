@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aventura Matemágica</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head> 
+<body class="bg-blue-100 min-h-screen flex flex-col">
+    
+  <!-- Theo Tela Inicial -->
+  <div id="start-screen">
+   <!--Som-->
+    <audio id="background-music" loop>
+        <source src="sommagic2.mpeg" type="audio/mpeg">
+    </audio> 
+    <!-- Sons de acerto e erro -->
+    <audio id="sound-correct" src="acertou.mp3"></audio>
+    <audio id="sound-wrong" src="errou.mp3"></audio>
+    <!--Final Som-->
+
+     <div class="mascote-container">
+      <img src="masc.png" alt="Mascote Matemático" class="mascote" />
+    </div> 
+    <h1 class="title">Matemágica</h1>
+    <button id="start-btn">Começar a aventura</button>
+    <div id="blink-stars"></div> <!-- Contêiner para estrelas piscando -->
+  </div>
+
+  <!-- Final Tela Inicial Mágica -->
+
+  <!-- Tela de identificação -->
+  <div id="name-screen" class="hidden">
+    <!-- Botão Voltar -->
+    <button id="back-btn" class="back-btn">
+        <img src="coelho.png" alt="Voltar" class="icon-magico">
+        <span class="texto-voltar">Voltar</span>
+    </button>
+    <h1 class="title2">Digite seu nome:</h1>
+
+    <input
+        id="player-name"
+        type="text"
+        maxlength="15"
+        placeholder="Seu nome"/>
+
+    <!-- Botão Confirmar -->
+    <button id="confirm-name-btn">✅ Confirmar</button>
+
+    <!-- Botão Créditos -->
+    <div class="flex gap-4 mb-6">
+        <button class="creditos" name="Creditos">✨ Créditos</button>
+    </div>
+    
+</div>
+
+<!-- MASCOTE E BALAO DE FALA_ANA tela de identificação-->
+<div id="mascot-container" class="hidden">
+    <img src="coelho_magicoo.png" alt="Mascote mágico" id="mascot-img">
+    <div id="speech-bubble">Sem seu nome, meu chapéu não faz magia!
+        Digite seu nome!🎩💫</div>
+  </div>
+
+<!--Final tela de identificação-->
+
+
+<!--Tela de jogo-->
+<main id="game-container" class="hidden">
+
+    <img src="mago.png" alt="Mascote" id="mascote-game">
+
+
+    <div id="mascote-game-container" aria-hidden="true">
+        <div id="mascot-game-bubble" class="mascot-bubble" role="status">Mensagem</div>
+    </div>
+
+    
+    <!-- Container do jogo -->
+    <div id="game-box" class="hidden">
+        <div id="magic-sparkles"></div>
+        <h1 id="game-title">🧮 Desafio Matemático 🧮</h1>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <section id="game-content">
+            <div id="question-area">
+                <div id="question"></div>
+                <div id="options-grid"></div>
+            </div>
+            <div id="feedback-message"></div>
+        </section>
+
+        <div id="score-display">
+            Pontuação: <span id="score">0</span> / <span id="total-questions">10</span><br>
+            Nível: <span id="level">1</span>
+        </div>
+
+        <div id="end-game-screen" class="hidden">
+            <h2>🏆 Jogo Finalizado!</h2>
+            <p id="final-score"></p>
+            <div id="stars"></div>
+            <button onclick="startGame()"
+                class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300">
+                Jogar Novamente
+            </button>
+        </div>
+    </div>
+</main>
+
+
+<!--Final Tela de jogo-->
+
+<script src="script.js"></script>
+</body>
+</html>

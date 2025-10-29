@@ -4,6 +4,9 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===================== ESTADO DO JOGO =====================
+let pontuacaoTotal = 0;
+let estrelas = 0;
+let perguntaAtual = 0;
 let score = 0;
 let questionCount = 0;
 const totalQuestions = 10;
@@ -153,6 +156,74 @@ function initMagicEffects() {
 }
 
 // ===================== LÓGICA DO JOGO =====================
+function carregarPergunta() {
+  const pergunta = perguntas[perguntaAtual];
+  document.getElementById("texto-pergunta").textContent = pergunta.pergunta;
+
+  const opcoes = document.getElementById("opcoes");
+  opcoes.innerHTML = "";
+
+  for (const [letra, texto] of Object.entries(pergunta.alternativas)) {
+    const botao = document.createElement("button");
+    botao.textContent = texto;
+    botao.className = "bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-2 px-4 rounded-lg w-full";
+    botao.onclick = () => verificarResposta(letra);
+    opcoes.appendChild(botao);
+  }
+}
+
+function verificarResposta(resposta) {
+  const pergunta = perguntas[perguntaAtual];
+
+  if (resposta === pergunta.correta) {
+    pontuacaoTotal += pergunta.pontos;
+    estrelas++;
+  }
+
+  perguntaAtual++;
+
+  if (perguntaAtual < perguntas.length) {
+    carregarPergunta();
+  } else {
+    finalizarJogo();
+  }
+}
+
+function finalizarJogo() {
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("end-game-screen").classList.remove("hidden");
+
+  const estrelasDiv = document.getElementById("estrelas");
+  estrelasDiv.innerHTML = "⭐".repeat(estrelas);
+
+  const pontosDiv = document.getElementById("pontuacao-final");
+  pontosDiv.textContent = `Pontuação total: ${pontuacaoTotal} pontos`;
+}
+
+async function salvarNoRanking(nomeJogador) {
+  const { data, error } = await supabase
+    .from("ranking")
+    .insert([
+      {
+        nome: nomeJogador,
+        estrelas: estrelas,
+        pontos: pontuacaoTotal,
+        nivel: "geral"
+      }
+    ]);
+
+  if (error) console.error("Erro ao salvar no ranking:", error);
+  else console.log("Pontuação salva:", data);
+}
+
+salvarNoRanking(prompt("Digite seu nome para o ranking:"));
+
+const { data, error } = await supabase
+  .from("ranking")
+  .select("*")
+  .order("pontos", { ascending: false });
+
+
 function rand(max) {
   return Math.floor(Math.random() * max) + 1;
 }
@@ -344,4 +415,51 @@ async function adicionarAoRanking(novoJogador) {
 
 function obterNomeDoNivel(nivel) {
   return nivel === 1 ? "Fácil" : nivel === 2 ? "Médio" : "Difícil";
+}
+
+// ===================== RANKING COMPLETO (SUPABASE) =====================
+
+// Botões e modal
+const verRankingBtn = document.getElementById('ver-ranking-btn');
+const rankingModal = document.getElementById('ranking-modal');
+const fecharRanking = document.getElementById('fechar-ranking');
+const rankingCompletoList = document.getElementById('ranking-completo-list');
+
+// Evento: abrir o ranking completo
+if (verRankingBtn) {
+  verRankingBtn.addEventListener('click', async () => {
+    rankingCompletoList.innerHTML = "<p class='text-center text-gray-500'>Carregando...</p>";
+
+    const { data, error } = await supabase
+      .from('ranking')
+      .select('*')
+      .order('estrelas', { ascending: false });
+
+    if (error) {
+      rankingCompletoList.innerHTML = "<p class='text-red-500 text-center'>Erro ao carregar ranking 😢</p>";
+      console.error(error);
+      return;
+    }
+
+    rankingCompletoList.innerHTML = "";
+    data.forEach((jogador, index) => {
+      const item = document.createElement('li');
+      item.className = "flex justify-between items-center bg-gray-100 p-2 rounded-md shadow-sm";
+      item.innerHTML = `
+        <span class="font-bold text-blue-800">${index + 1}. ${jogador.nome}</span>
+        <span class="text-yellow-500">${'★'.repeat(jogador.estrelas)}</span>
+        <span class="text-sm text-gray-600">${jogador.nivel}</span>
+      `;
+      rankingCompletoList.appendChild(item);
+    });
+
+    rankingModal.classList.remove('hidden');
+  });
+}
+
+// Evento: fechar o modal
+if (fecharRanking) {
+  fecharRanking.addEventListener('click', () => {
+    rankingModal.classList.add('hidden');
+  });
 }

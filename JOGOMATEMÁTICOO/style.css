@@ -35,7 +35,9 @@
   to { transform: rotate(360deg); }
 }
 
-
+#ver-ranking-btn{
+  margin: 30px;
+}
 
 /*==================TELA PRINCIPAL - ALTERAÇÕES THEO ========================*/
 

@@ -1,89 +1,139 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aventura Mágica da Matemática</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aventura Matemágica</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gradient-to-b from-blue-200 to-indigo-400 min-h-screen overflow-hidden">
+</head> 
+<body class="bg-blue-100 min-h-screen flex flex-col">
+    
+  <!-- Theo Tela Inicial -->
+  <div id="start-screen">
+   <!--Som-->
+    <audio id="background-music" loop>
+        <source src="sommagic2.mpeg" type="audio/mpeg">
+    </audio> 
+    <!-- Sons de acerto e erro -->
+    <audio id="sound-correct" src="acertou.mp3"></audio>
+    <audio id="sound-wrong" src="errou.mp3"></audio>
+    <!--Final Som-->
 
-  <!-- Tela Inicial -->
-  <section id="start-screen" class="flex flex-col items-center justify-center h-screen text-center space-y-6 relative">
-    <div id="blink-stars" class="absolute inset-0 z-0"></div>
-    <h1 class="text-5xl font-extrabold text-yellow-300 drop-shadow-lg z-10">✨ Aventura Mágica da Matemática ✨</h1>
-    <button id="start-btn" class="px-6 py-3 bg-yellow-400 text-xl rounded-full font-bold shadow-md hover:bg-yellow-300 z-10">
-      Começar Aventura
-    </button>
-
-    <!-- Ranking Parcial -->
-    <div id="ranking-container" class="bg-white/70 p-4 rounded-xl mt-6 w-80 shadow-lg z-10">
-      <h2 class="text-lg font-bold mb-2 text-blue-800">🏆 Ranking</h2>
-      <ul id="ranking-list" class="space-y-2 text-left text-sm"></ul>
-      <button id="ver-ranking-btn" class="mt-3 bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded-full w-full">
-        Ver Ranking Completo
-      </button>
-    </div>
-  </section>
-
-  <!-- Tela do Nome -->
-  <section id="name-screen" class="hidden flex flex-col items-center justify-center h-screen bg-indigo-300 space-y-4 relative">
-    <input id="player-name" type="text" placeholder="Digite seu nome..." class="p-3 rounded-lg w-64 text-center">
-    <button id="confirm-name-btn" class="bg-yellow-300 px-4 py-2 rounded-lg font-bold">Confirmar</button>
-    <button id="back-btn" class="mt-4 text-white underline">Voltar</button>
-    <div id="mascot-container" class="hidden absolute bottom-8 animate-bounce">
-      🐰 <span id="mascot-message">Digite seu nome!</span>
-    </div>
-  </section>
-
-  <!-- Tela do Jogo -->
-  <section id="game-container" class="hidden flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-200 to-indigo-400">
-    <h2 id="game-title" class="text-3xl font-bold mb-4 text-white drop-shadow-lg">Boa sorte!</h2>
-    <div id="game-content" class="bg-white/80 p-6 rounded-2xl shadow-lg text-center max-w-md w-full">
-      <div id="progress" class="w-full bg-gray-300 rounded-full h-3 mb-4">
-        <div id="progress-bar" class="h-3 bg-yellow-400 rounded-full" style="width: 0%"></div>
-      </div>
-      <p id="level" class="text-sm text-gray-600 mb-1">Nível 1</p>
-      <p id="score-display" class="text-sm text-gray-600 mb-4">Pontuação: <span id="score">0</span></p>
-      <h3 id="question" class="text-xl font-bold mb-4">Pergunta</h3>
-      <div id="options-grid" class="grid grid-cols-2 gap-3 mb-4"></div>
-      <p id="feedback-message" class="text-lg font-semibold h-6"></p>
-      <div id="mascot-game-bubble" class="hidden text-lg mt-3"></div>
-    </div>
-  </section>
-
-  <!-- Tela Final -->
-  <section id="end-game-screen" class="hidden flex flex-col items-center justify-center h-screen bg-indigo-400 text-center text-white space-y-4">
-    <h2 class="text-3xl font-bold">🎉 Parabéns! 🎉</h2>
-    <p id="final-score" class="text-lg"></p>
-    <div id="stars" class="flex justify-center space-x-2"></div>
-    <button id="ver-ranking-btn-final" class="bg-yellow-300 hover:bg-yellow-400 text-black px-5 py-2 rounded-full font-bold">
-      Ver Ranking Completo 🏆
-    </button>
-    <button id="restart-btn" class="mt-3 bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-full">
-      Jogar Novamente 🔁
-    </button>
-  </section>
-
-  <!-- Modal do Ranking Completo -->
-  <div id="ranking-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-2xl w-96 max-h-[80vh] overflow-y-auto shadow-2xl">
-      <h2 class="text-xl font-bold text-center mb-4 text-blue-700">🏆 Ranking Completo</h2>
-      <ul id="ranking-completo-list" class="space-y-2 text-gray-700"></ul>
-      <button id="fechar-ranking" class="mt-4 bg-red-400 hover:bg-red-500 text-white w-full py-2 rounded-lg">
-        Fechar
-      </button>
-    </div>
+     <div class="mascote-container">
+      <img src="masc.png" alt="Mascote Matemático" class="mascote" />
+    </div> 
+    <h1 class="title">Matemágica</h1>
+    <button id="start-btn">Começar a aventura</button>
+    <div id="blink-stars"></div> <!-- Contêiner para estrelas piscando -->
+    <button id="ver-ranking-btn" class="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-2 px-4 rounded-lg shadow-lg transition">
+    🏆 Ver Ranking Completo
+</button>
+</div>
   </div>
 
-  <!-- Áudios -->
-  <audio id="background-music" src="music.mp3" loop></audio>
-  <audio id="sound-correct" src="correct.mp3"></audio>
-  <audio id="sound-wrong" src="wrong.mp3"></audio>
+  <!-- Final Tela Inicial Mágica -->
 
-  <script src="perguntas.js"></script>
-  <script src="script.js"></script>
+  <!-- Tela de identificação -->
+  <div id="name-screen" class="hidden">
+    <!-- Botão Voltar -->
+    <button id="back-btn" class="back-btn">
+        <img src="coelho.png" alt="Voltar" class="icon-magico">
+        <span class="texto-voltar">Voltar</span>
+    </button>
+    <h1 class="title2">Digite seu nome:</h1>
+
+    <input
+        id="player-name"
+        type="text"
+        maxlength="15"
+        placeholder="Seu nome"/>
+
+    <!-- Botão Confirmar -->
+    <button id="confirm-name-btn">✅ Confirmar</button>
+
+    <!-- Botão Créditos -->
+    <div class="flex gap-4 mb-6">
+        <button class="creditos" name="Creditos">✨ Créditos</button>
+    </div>
+    
+</div>
+
+<!-- MASCOTE E BALAO DE FALA_ANA tela de identificação-->
+<div id="mascot-container" class="hidden">
+    <img src="coelho_magicoo.png" alt="Mascote mágico" id="mascot-img">
+    <div id="speech-bubble">Sem seu nome, meu chapéu não faz magia!
+        Digite seu nome!🎩💫</div>
+  </div>
+
+<!--Final tela de identificação-->
+
+
+<!--Tela de jogo-->
+<main id="game-container" class="hidden">
+
+    <img src="mago.png" alt="Mascote" id="mascote-game">
+
+
+    <div id="mascote-game-container" aria-hidden="true">
+        <div id="mascot-game-bubble" class="mascot-bubble" role="status">Mensagem</div>
+    </div>
+
+    
+    <!-- Container do jogo -->
+    <div id="game-box" class="hidden">
+        <div id="magic-sparkles"></div>
+        <h1 id="game-title">🧮 Desafio Matemático 🧮</h1>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <section id="game-content">
+            <div id="question-area">
+                <div id="question"></div>
+                <div id="options-grid"></div>
+            </div>
+            <div id="feedback-message"></div>
+        </section>
+
+        <div id="score-display">
+            Pontuação: <span id="score">0</span> / <span id="total-questions">10</span><br>
+            Nível: <span id="level">1</span>
+        </div>
+
+        <div id="end-game-screen" class="hidden">
+            <h2>🏆 Jogo Finalizado!</h2>
+            <p id="final-score"></p>
+            <div id="stars"></div>
+            <button onclick="startGame()"
+                class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300">
+                Jogar Novamente
+            </button>
+        </div>
+    </div>
+</main>
+
+<div id="end-game-screen" class="hidden text-center">
+  <h2 class="text-3xl font-bold text-blue-900 mb-4">Fim do Jogo!</h2>
+  <div id="estrelas" class="text-yellow-400 text-3xl mb-4"></div>
+  <div id="pontuacao-final" class="text-xl text-gray-700 mb-4"></div>
+
+
+<!-- Ranking Completo -->
+<div id="ranking-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-2xl shadow-lg p-6 w-11/12 max-w-md relative">
+    <button id="fechar-ranking" class="absolute top-2 right-4 text-gray-500 text-2xl font-bold hover:text-gray-700">&times;</button>
+    <h2 class="text-2xl font-bold text-blue-900 text-center mb-4">🏅 Ranking Completo</h2>
+    <ul id="ranking-completo-list" class="space-y-2 max-h-96 overflow-y-auto"></ul>
+  </div>
+</div>
+
+<!--Final Tela de jogo-->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>

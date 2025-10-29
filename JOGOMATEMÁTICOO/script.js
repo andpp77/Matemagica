@@ -1,4 +1,4 @@
-// Conexão Supabase
+// ===================== CONEXÃO SUPABASE =====================
 const SUPABASE_URL = "https://vnvbfygnofswdhewbedv.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZudmJmeWdub2Zzd2RoZXdiZWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2OTE1MDAsImV4cCI6MjA3NzI2NzUwMH0.bgShFjUfs4d7yUttB-NomD6W6B8IyKcoU9u99G-jLjo";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -17,7 +17,7 @@ let gameLevel = 1;
 let lastQuestions = [];
 let playerName = "";
 
-// REFERÊNCIAS DO DOM
+// ===================== REFERÊNCIAS DO DOM =====================
 let startScreen, startBtn, nameScreen, playerNameInput, confirmNameBtn, gameContainer, gameContent, endGameScreen;
 let questionElement, optionsGrid, feedbackMessage;
 let scoreDisplay, totalQuestionsDisplay, finalScoreDisplay, progressBar, levelDisplay;
@@ -30,6 +30,7 @@ const gameVolume = 0.2;
 
 // ===================== INICIALIZAÇÃO =====================
 document.addEventListener('DOMContentLoaded', () => {
+  // Captura elementos
   startScreen = document.getElementById('start-screen');
   startBtn = document.getElementById('start-btn');
   nameScreen = document.getElementById('name-screen');
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   soundWrong = document.getElementById('sound-wrong');
   backBtn = document.getElementById("back-btn");
 
-  // Cria botão de volume
+  // Botão de volume
   volumeBtn = document.createElement('button');
   volumeBtn.id = 'volume-btn';
   volumeBtn.textContent = '🔊';
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   backgroundMusic.volume = originalVolume;
 
-  // Controle do botão de som
+  // Controle de som
   volumeBtn.addEventListener('click', () => {
     if (backgroundMusic.paused) {
       backgroundMusic.play().catch(console.log);
@@ -73,14 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Botão "Começar a aventura"
   startBtn.addEventListener('click', () => {
     backgroundMusic.play().catch(console.log);
     startScreen.style.display = 'none';
     nameScreen.style.display = 'flex';
   });
 
-  // Botão voltar
   if (backBtn) {
     backBtn.addEventListener("click", () => {
       nameScreen.style.display = "none";
@@ -88,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Confirmar nome
   if (confirmNameBtn) {
     confirmNameBtn.addEventListener('click', () => {
       const nameValue = playerNameInput.value.trim();
@@ -116,16 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Efeitos visuais iniciais
   initMagicEffects();
-
-  // Carregar ranking
   exibirRanking();
 });
 
-// ===================== FUNÇÕES DE EFEITO VISUAL =====================
+// ===================== EFEITOS VISUAIS =====================
 function initMagicEffects() {
-  // Fundo de estrelas piscando
   const blinkContainer = document.getElementById("blink-stars");
   const total = 25;
   for (let i = 0; i < total; i++) {
@@ -138,7 +132,6 @@ function initMagicEffects() {
     blinkContainer.appendChild(img);
   }
 
-  // Rastro mágico do cursor
   document.addEventListener('mousemove', (e) => {
     const star = document.createElement('span');
     star.classList.add('magic-star');
@@ -156,74 +149,64 @@ function initMagicEffects() {
 }
 
 // ===================== LÓGICA DO JOGO =====================
-function carregarPergunta() {
-  const pergunta = perguntas[perguntaAtual];
-  document.getElementById("texto-pergunta").textContent = pergunta.pergunta;
+function startGame() {
+  questionCount = 0;
+  score = 0;
+  updateLevel();
+  endGameScreen.classList.add('hidden');
+  gameContainer.classList.remove('hidden');
+  gameContent.classList.remove('hidden');
+  backgroundMusic.volume = gameVolume;
+  updateUI();
+  carregarProximaPergunta();
+}
 
-  const opcoes = document.getElementById("opcoes");
-  opcoes.innerHTML = "";
+function carregarProximaPergunta() {
+  const modo = Math.random() < 0.5 ? "fixa" : "auto";
+  if (modo === "fixa" && typeof perguntas !== "undefined" && perguntas.length > 0 && perguntaAtual < perguntas.length) {
+    carregarPerguntaFixa();
+  } else {
+    generateProblem();
+  }
+}
+
+function carregarPerguntaFixa() {
+  const pergunta = perguntas[perguntaAtual % perguntas.length];
+  questionElement.textContent = pergunta.pergunta;
+  optionsGrid.innerHTML = "";
 
   for (const [letra, texto] of Object.entries(pergunta.alternativas)) {
     const botao = document.createElement("button");
     botao.textContent = texto;
-    botao.className = "bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-2 px-4 rounded-lg w-full";
-    botao.onclick = () => verificarResposta(letra);
-    opcoes.appendChild(botao);
+    botao.className = "option-btn bg-blue-200 hover:bg-blue-300 p-3 rounded-lg transition";
+    botao.onclick = () => verificarRespostaFixa(letra, pergunta.correta, botao);
+    optionsGrid.appendChild(botao);
   }
 }
 
-function verificarResposta(resposta) {
-  const pergunta = perguntas[perguntaAtual];
-
-  if (resposta === pergunta.correta) {
-    pontuacaoTotal += pergunta.pontos;
-    estrelas++;
+function verificarRespostaFixa(resposta, correta, botao) {
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+  if (resposta === correta) {
+    score++;
+    botao.classList.add('correct');
+    playSoundWithMusicFade(soundCorrect);
+  } else {
+    botao.classList.add('wrong');
+    playSoundWithMusicFade(soundWrong);
   }
 
   perguntaAtual++;
+  questionCount++;
+  updateUI();
 
-  if (perguntaAtual < perguntas.length) {
-    carregarPergunta();
-  } else {
-    finalizarJogo();
-  }
+  setTimeout(() => {
+    feedbackMessage.textContent = '';
+    if (questionCount < totalQuestions) carregarProximaPergunta();
+    else endGame();
+  }, 1000);
 }
 
-function finalizarJogo() {
-  document.getElementById("quiz").classList.add("hidden");
-  document.getElementById("end-game-screen").classList.remove("hidden");
-
-  const estrelasDiv = document.getElementById("estrelas");
-  estrelasDiv.innerHTML = "⭐".repeat(estrelas);
-
-  const pontosDiv = document.getElementById("pontuacao-final");
-  pontosDiv.textContent = `Pontuação total: ${pontuacaoTotal} pontos`;
-}
-
-async function salvarNoRanking(nomeJogador) {
-  const { data, error } = await supabase
-    .from("ranking")
-    .insert([
-      {
-        nome: nomeJogador,
-        estrelas: estrelas,
-        pontos: pontuacaoTotal,
-        nivel: "geral"
-      }
-    ]);
-
-  if (error) console.error("Erro ao salvar no ranking:", error);
-  else console.log("Pontuação salva:", data);
-}
-
-salvarNoRanking(prompt("Digite seu nome para o ranking:"));
-
-const { data, error } = await supabase
-  .from("ranking")
-  .select("*")
-  .order("pontos", { ascending: false });
-
-
+// ===================== PERGUNTAS AUTOMÁTICAS =====================
 function rand(max) {
   return Math.floor(Math.random() * max) + 1;
 }
@@ -280,36 +263,14 @@ function generateOptions(correct) {
   });
 }
 
-function playSoundWithMusicFade(sound) {
-  if (!sound) return;
-  const previousVolume = backgroundMusic.volume;
-  backgroundMusic.volume = 0.1;
-  sound.currentTime = 0;
-  sound.play().catch(console.log);
-  sound.addEventListener('ended', () => backgroundMusic.volume = previousVolume, { once: true });
-}
-
-function showMascotMessage(text, type = "neutral", duration = 1800) {
-  const bubble = document.getElementById('mascot-game-bubble');
-  if (!bubble) return;
-  bubble.textContent = text;
-  bubble.classList.add('show');
-  setTimeout(() => bubble.classList.remove('show'), duration);
-}
-
 function checkAnswer(selected, button) {
   document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-
   if (selected === currentCorrectAnswer) {
     score++;
     button.classList.add('correct');
-    feedbackMessage.textContent = '✅ Correto!';
-    showMascotMessage('Parabéns! 🎉', 'correct');
     playSoundWithMusicFade(soundCorrect);
   } else {
     button.classList.add('wrong');
-    feedbackMessage.textContent = '❌ Errado!';
-    showMascotMessage('Oh não 😢', 'wrong');
     playSoundWithMusicFade(soundWrong);
   }
 
@@ -317,37 +278,13 @@ function checkAnswer(selected, button) {
   updateUI();
 
   setTimeout(() => {
-    feedbackMessage.textContent = '';
-    if (questionCount < totalQuestions) generateProblem();
+    if (questionCount < totalQuestions) carregarProximaPergunta();
     else endGame();
   }, 1000);
 }
 
-function updateUI() {
-  scoreDisplay.textContent = score;
-  totalQuestionsDisplay.textContent = totalQuestions;
-  progressBar.style.width = `${(questionCount / totalQuestions) * 100}%`;
-}
-
-function updateLevel() {
-  if (score <= 3) gameLevel = 1;
-  else if (score <= 7) gameLevel = 2;
-  else gameLevel = 3;
-}
-
-function startGame() {
-  questionCount = 0;
-  score = 0;
-  updateLevel();
-  endGameScreen.classList.add('hidden');
-  gameContainer.classList.remove('hidden');
-  gameContent.classList.remove('hidden');
-  backgroundMusic.volume = gameVolume;
-  updateUI();
-  generateProblem();
-}
-
-function endGame() {
+// ===================== FIM DE JOGO =====================
+async function endGame() {
   updateLevel();
   gameContent.classList.add('hidden');
   endGameScreen.classList.remove('hidden');
@@ -366,10 +303,10 @@ function endGame() {
   }
 
   const novoJogador = { nome: playerName, estrelas: stars, nivel: obterNomeDoNivel(gameLevel) };
-  adicionarAoRanking(novoJogador);
+  await adicionarAoRanking(novoJogador);
 }
 
-// ===================== RANKING COM VERCEL API =====================
+// ===================== RANKING (SUPABASE) =====================
 async function exibirRanking() {
   if (!rankingList) return;
   rankingList.innerHTML = '<p>Carregando ranking...</p>';
@@ -407,9 +344,7 @@ function renderRanking(lista) {
 
 async function adicionarAoRanking(novoJogador) {
   const { error } = await supabase.from('ranking').insert([novoJogador]);
-  if (error) {
-    console.error('Erro ao salvar jogador:', error);
-  }
+  if (error) console.error('Erro ao salvar jogador:', error);
   exibirRanking();
 }
 
@@ -417,49 +352,24 @@ function obterNomeDoNivel(nivel) {
   return nivel === 1 ? "Fácil" : nivel === 2 ? "Médio" : "Difícil";
 }
 
-// ===================== RANKING COMPLETO (SUPABASE) =====================
-
-// Botões e modal
-const verRankingBtn = document.getElementById('ver-ranking-btn');
-const rankingModal = document.getElementById('ranking-modal');
-const fecharRanking = document.getElementById('fechar-ranking');
-const rankingCompletoList = document.getElementById('ranking-completo-list');
-
-// Evento: abrir o ranking completo
-if (verRankingBtn) {
-  verRankingBtn.addEventListener('click', async () => {
-    rankingCompletoList.innerHTML = "<p class='text-center text-gray-500'>Carregando...</p>";
-
-    const { data, error } = await supabase
-      .from('ranking')
-      .select('*')
-      .order('estrelas', { ascending: false });
-
-    if (error) {
-      rankingCompletoList.innerHTML = "<p class='text-red-500 text-center'>Erro ao carregar ranking 😢</p>";
-      console.error(error);
-      return;
-    }
-
-    rankingCompletoList.innerHTML = "";
-    data.forEach((jogador, index) => {
-      const item = document.createElement('li');
-      item.className = "flex justify-between items-center bg-gray-100 p-2 rounded-md shadow-sm";
-      item.innerHTML = `
-        <span class="font-bold text-blue-800">${index + 1}. ${jogador.nome}</span>
-        <span class="text-yellow-500">${'★'.repeat(jogador.estrelas)}</span>
-        <span class="text-sm text-gray-600">${jogador.nivel}</span>
-      `;
-      rankingCompletoList.appendChild(item);
-    });
-
-    rankingModal.classList.remove('hidden');
-  });
+// ===================== FUNÇÕES AUXILIARES =====================
+function playSoundWithMusicFade(sound) {
+  if (!sound) return;
+  const previousVolume = backgroundMusic.volume;
+  backgroundMusic.volume = 0.1;
+  sound.currentTime = 0;
+  sound.play().catch(console.log);
+  sound.addEventListener('ended', () => backgroundMusic.volume = previousVolume, { once: true });
 }
 
-// Evento: fechar o modal
-if (fecharRanking) {
-  fecharRanking.addEventListener('click', () => {
-    rankingModal.classList.add('hidden');
-  });
+function updateUI() {
+  scoreDisplay.textContent = score;
+  totalQuestionsDisplay.textContent = totalQuestions;
+  progressBar.style.width = `${(questionCount / totalQuestions) * 100}%`;
+}
+
+function updateLevel() {
+  if (score <= 3) gameLevel = 1;
+  else if (score <= 7) gameLevel = 2;
+  else gameLevel = 3;
 }

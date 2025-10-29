@@ -1,3 +1,8 @@
+// Conexão Supabase
+const SUPABASE_URL = "https://vnvbfygnofswdhewbedv.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZudmJmeWdub2Zzd2RoZXdiZWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2OTE1MDAsImV4cCI6MjA3NzI2NzUwMH0.bgShFjUfs4d7yUttB-NomD6W6B8IyKcoU9u99G-jLjo";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // ===================== ESTADO DO JOGO =====================
 let score = 0;
 let questionCount = 0;
@@ -297,16 +302,20 @@ function endGame() {
 async function exibirRanking() {
   if (!rankingList) return;
   rankingList.innerHTML = '<p>Carregando ranking...</p>';
-  try {
-    const response = await fetch('/api/ranking');
-    const data = await response.json();
-    renderRanking(data);
-    localStorage.setItem('rankingData', JSON.stringify(data));
-  } catch {
-    // Fallback localStorage
-    const local = JSON.parse(localStorage.getItem('rankingData')) || [];
-    renderRanking(local);
+
+  const { data, error } = await supabase
+    .from('ranking')
+    .select('*')
+    .order('estrelas', { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error('Erro ao carregar ranking:', error);
+    rankingList.innerHTML = '<p>Erro ao carregar ranking 😢</p>';
+    return;
   }
+
+  renderRanking(data);
 }
 
 function renderRanking(lista) {
@@ -326,17 +335,9 @@ function renderRanking(lista) {
 }
 
 async function adicionarAoRanking(novoJogador) {
-  try {
-    await fetch('/api/ranking', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(novoJogador)
-    });
-  } catch {
-    // fallback local
-    const local = JSON.parse(localStorage.getItem('rankingData')) || [];
-    local.push(novoJogador);
-    localStorage.setItem('rankingData', JSON.stringify(local));
+  const { error } = await supabase.from('ranking').insert([novoJogador]);
+  if (error) {
+    console.error('Erro ao salvar jogador:', error);
   }
   exibirRanking();
 }

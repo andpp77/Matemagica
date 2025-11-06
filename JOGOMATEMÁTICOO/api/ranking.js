@@ -9,8 +9,8 @@ export default async function handler(req, res) {
     }
 
     await sql`
-      INSERT INTO ranking (nome, estrelas, nivel)
-      VALUES (${nome}, ${estrelas}, ${nivel});
+      INSERT INTO ranking (nome, estrelas, nivel, pontos)
+      VALUES (${nome}, ${estrelas}, ${nivel}, ${pontos});
     `;
     return res.status(200).json({ message: 'Jogador adicionado com sucesso!' });
   }

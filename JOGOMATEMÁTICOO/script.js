@@ -430,8 +430,15 @@ async function endGame() {
     starsContainer.appendChild(starImage);
   }
 
-  const novoJogador = { nome: playerName, estrelas: starsCount, nivel: obterNomeDoNivel(gameLevel) };
-  await adicionarAoRanking(novoJogador);
+  const novoJogador = { 
+  nome: playerName, 
+  estrelas: starsCount, 
+  nivel: obterNomeDoNivel(gameLevel),
+  pontos: score // adiciona a pontuação total da partida
+};
+
+await adicionarAoRanking(novoJogador);
+
 }
 
 // ===================== RANKING (SUPABASE) =====================
@@ -471,10 +478,24 @@ function renderRanking(lista) {
 }
 
 async function adicionarAoRanking(novoJogador) {
-  const { error } = await supabase.from('ranking').insert([novoJogador]);
-  if (error) console.error('Erro ao salvar jogador:', error);
+  const { error } = await supabase
+    .from('ranking')
+    .insert([{
+      nome: novoJogador.nome,
+      estrelas: novoJogador.estrelas,
+      nivel: novoJogador.nivel,
+      pontos: novoJogador.pontos
+    }]);
+
+  if (error) {
+    console.error('Erro ao salvar jogador:', error);
+  } else {
+    console.log('Jogador salvo com sucesso no ranking!');
+  }
+
   exibirRanking();
 }
+
 
 function obterNomeDoNivel(nivel) {
   return nivel === 1 ? "Fácil" : nivel === 2 ? "Médio" : "Difícil";

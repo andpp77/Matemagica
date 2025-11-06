@@ -442,6 +442,54 @@ await adicionarAoRanking(novoJogador);
 }
 
 // ===================== RANKING (SUPABASE) =====================
+function exibirRanking() {
+  const verRankingBtn = document.getElementById('ver-ranking-btn');
+  const rankingModal = document.getElementById('ranking-modal');
+  const fecharRankingBtn = document.getElementById('fechar-ranking');
+  const rankingList = document.getElementById('ranking-completo-list');
+
+  if (!verRankingBtn || !rankingModal || !fecharRankingBtn || !rankingList) return;
+
+  // Ao clicar no botão "Ver Ranking"
+  verRankingBtn.addEventListener('click', async () => {
+    rankingList.innerHTML = '<p>Carregando ranking...</p>';
+    rankingModal.classList.remove('hidden');
+
+    // Buscar ranking do Supabase
+    const { data, error } = await supabase
+      .from('ranking')
+      .select('*')
+      .order('estrelas', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      rankingList.innerHTML = '<p>Erro ao carregar ranking 😢</p>';
+      console.error(error);
+      return;
+    }
+
+    // Preencher a lista
+    rankingList.innerHTML = '';
+    data.forEach(jogador => {
+      const item = document.createElement('li');
+      item.className = 'flex flex-col p-2 bg-gray-50 rounded-md mb-2';
+      item.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-blue-800">${jogador.nome}</span>
+          <div>${'★'.repeat(jogador.estrelas)}</div>
+        </div>
+        <p class="text-gray-600 text-sm">Nível: ${jogador.nivel} • Pontos: ${jogador.pontos ?? 0}</p>
+      `;
+      rankingList.appendChild(item);
+    });
+  });
+
+  // Fechar o modal
+  fecharRankingBtn.addEventListener('click', () => {
+    rankingModal.classList.add('hidden');
+  });
+}
+
 async function exibirRanking() {
   if (!rankingList) return;
   rankingList.innerHTML = '<p>Carregando ranking...</p>';

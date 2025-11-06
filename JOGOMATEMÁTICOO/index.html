@@ -1,40 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aventura Matemágica</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
-</head> 
+</head>
+
 <body class="bg-blue-100 min-h-screen flex flex-col">
-    
+
   <!-- Theo Tela Inicial -->
   <div id="start-screen">
-   <!--Som--> 
+    <!--Som-->
     <audio id="background-music" loop>
-        <source src="sommagic2.mpeg" type="audio/mpeg">
-    </audio> 
+      <source src="sommagic2.mpeg" type="audio/mpeg">
+    </audio>
     <!-- Sons de acerto e erro -->
     <audio id="sound-correct" src="acertou.mp3"></audio>
     <audio id="sound-wrong" src="errou.mp3"></audio>
     <!--Final Som-->
 
-     <div class="mascote-container">
+    <div class="mascote-container">
       <img src="masc.png" alt="Mascote Matemático" class="mascote" />
-    </div> 
+    </div>
     <h1 class="title">Matemágica</h1>
     <button id="start-btn">Começar a aventura</button>
     <div id="blink-stars"></div> <!-- Contêiner para estrelas piscando -->
-    <button id="ver-ranking-btn" class="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-2 px-4 rounded-lg shadow-lg transition">
-    🏆 Ver Ranking Completo
-</button>
-</div>
+    <button id="ver-ranking-btn"
+      class="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-2 px-4 rounded-lg shadow-lg transition">
+      🏆Ver Ranking Completo
+    </button>
+  </div>
   </div>
 
   <!-- Final Tela Inicial Mágica -->
@@ -43,99 +47,95 @@
   <div id="name-screen" class="hidden">
     <!-- Botão Voltar -->
     <button id="back-btn" class="back-btn">
-        <img src="coelho.png" alt="Voltar" class="icon-magico">
-        <span class="texto-voltar">Voltar</span>
+      <img src="coelho.png" alt="Voltar" class="icon-magico">
+      <span class="texto-voltar">Voltar</span>
     </button>
     <h1 class="title2">Digite seu nome:</h1>
 
-    <input
-        id="player-name"
-        type="text"
-        maxlength="15"
-        placeholder="Seu nome"/>
+    <input id="player-name" type="text" maxlength="15" placeholder="Seu nome" />
 
     <!-- Botão Confirmar -->
     <button id="confirm-name-btn">✅ Confirmar</button>
 
     <!-- Botão Créditos -->
     <div class="flex gap-4 mb-6">
-        <button class="creditos" name="Creditos">✨ Créditos</button>
+      <button class="creditos" name="Creditos">✨ Créditos</button>
     </div>
-    
-</div>
 
-<!-- MASCOTE E BALAO DE FALA_ANA tela de identificação-->
-<div id="mascot-container" class="hidden">
-    <img src="coelho_magicoo.png" alt="Mascote mágico" id="mascot-img">
-    <div id="speech-bubble">Sem seu nome, meu chapéu não faz magia!
-        Digite seu nome!🎩💫</div>
   </div>
 
-<!--Final tela de identificação-->
+  <!-- MASCOTE E BALAO DE FALA_ANA tela de identificação-->
+  <div id="mascot-container" class="hidden">
+    <img src="coelho_magicoo.png" alt="Mascote mágico" id="mascot-img">
+    <div id="speech-bubble">Sem seu nome, meu chapéu não faz magia!
+      Digite seu nome!🎩💫</div>
+  </div>
+
+  <!--Final tela de identificação-->
 
 
-<!--Tela de jogo-->
-<main id="game-container" class="hidden">
+  <!--Tela de jogo-->
+  <main id="game-container" class="hidden">
 
     <img src="mago.png" alt="Mascote" id="mascote-game">
 
 
     <div id="mascote-game-container" aria-hidden="true">
-        <div id="mascot-game-bubble" class="mascot-bubble" role="status">Mensagem</div>
+      <div id="mascot-game-bubble" class="mascot-bubble" role="status">Mensagem</div>
     </div>
 
-    
+
     <!-- Container do jogo -->
     <div id="game-box" class="hidden">
-        <div id="magic-sparkles"></div>
-        <h1 id="game-title">🧮 Desafio Matemático 🧮</h1>
-        <div id="progress-bar-container">
-            <div id="progress-bar"></div>
+      <div id="magic-sparkles"></div>
+      <h1 id="game-title">🧮 Desafio Matemático 🧮</h1>
+      <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+      </div>
+      <section id="game-content">
+        <div id="question-area">
+          <div id="question"></div>
+          <div id="options-grid"></div>
         </div>
-        <section id="game-content">
-            <div id="question-area">
-                <div id="question"></div>
-                <div id="options-grid"></div>
-            </div>
-            <div id="feedback-message"></div>
-        </section>
+        <div id="feedback-message"></div>
+      </section>
 
-        <div id="score-display">
-            Pontuação: <span id="score">0</span> / <span id="total-questions">10</span><br>
-            Nível: <span id="level">1</span>
-        </div>
+      <div id="score-display">
+        Pontuação: <span id="score">0</span> / <span id="total-questions">10</span><br>
+        Nível: <span id="level">1</span>
+      </div>
 
-        <div id="end-game-screen" class="hidden">
-            <h2>🏆 Jogo Finalizado!</h2>
-            <p id="final-score"></p>
-            <div id="stars"></div>
-            <button onclick="startGame()"
-                class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300">
-                Jogar Novamente
-            </button>
-        </div>
+      <div id="end-game-screen" class="hidden">
+        <h2>🏆 Jogo Finalizado!</h2>
+        <p id="final-score"></p>
+        <div id="stars"></div>
+        <button onclick="startGame()"
+          class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300">
+          Jogar Novamente
+        </button>
+      </div>
     </div>
-</main>
+  </main>
 
-<div id="end-game-screen" class="hidden text-center">
-  <h2 class="text-3xl font-bold text-blue-900 mb-4">Fim do Jogo!</h2>
-  <div id="estrelas" class="text-yellow-400 text-3xl mb-4"></div>
-  <div id="pontuacao-final" class="text-xl text-gray-700 mb-4"></div>
+  <div id="end-game-screen" class="hidden text-center">
+    <h2 class="text-3xl font-bold text-blue-900 mb-4">Fim do Jogo!</h2>
+    <div id="estrelas" class="text-yellow-400 text-3xl mb-4"></div>
+    <div id="pontuacao-final" class="text-xl text-gray-700 mb-4"></div>
 
 
-  <div id="ranking-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-2xl w-96 max-h-[80vh] overflow-y-auto shadow-2xl">
-      <h2 class="text-xl font-bold text-center mb-4 text-blue-700">🏆 Ranking Completo</h2>
-      <ul id="ranking-completo-list" class="space-y-2 text-gray-700"></ul>
-      <button id="fechar-ranking" class="mt-4 bg-red-400 hover:bg-red-500 text-white w-full py-2 rounded-lg">
-        Fechar
-      </button>
+    <div id="ranking-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-2xl w-96 max-h-[80vh] overflow-y-auto shadow-2xl">
+        <h2 class="text-xl font-bold text-center mb-4 text-blue-700">🏆 Ranking Completo</h2>
+        <ul id="ranking-completo-list" class="space-y-2 text-gray-700"></ul>
+        <button id="fechar-ranking" class="mt-4 bg-red-400 hover:bg-red-500 text-white w-full py-2 rounded-lg">
+          Fechar
+        </button>
+      </div>
     </div>
-  </div>
 
-<!--Final Tela de jogo-->
+    <!--Final Tela de jogo-->
 
-<script src="perguntas.js"></script>
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>

@@ -158,8 +158,249 @@ function startGame() {
   carregarProximaPergunta();
 }
 
-// ... Aqui vai todo o código de perguntas fixas e automáticas
-// (não precisa alterar nada do que você já tinha)
+function carregarProximaPergunta() {
+  // reseta tentativa ao carregar nova pergunta
+  tentativa = 1;
+
+  const modo = Math.random() < 0.5 ? "fixa" : "auto";
+  if (modo === "fixa" && typeof perguntas !== "undefined" && perguntas.length > 0 && perguntaAtual < perguntas.length) {
+    carregarPerguntaFixa();
+  } else {
+    generateProblem();
+  }
+}
+
+// ===================== PERGUNTAS FIXAS =====================
+function carregarPerguntaFixa() {
+  const pergunta = perguntas[perguntaAtual % perguntas.length];
+  questionElement.textContent = pergunta.pergunta;
+  optionsGrid.innerHTML = "";
+
+  // Garantir que tentativa seja 1, habilitar botões e limpar classes
+  tentativa = 1;
+  feedbackMessage.textContent = '';
+
+  for (const [letra, texto] of Object.entries(pergunta.alternativas)) {
+    const botao = document.createElement("button");
+    botao.textContent = texto;
+    botao.dataset.letra = letra;
+    botao.className = "option-btn bg-blue-200 hover:bg-blue-300 p-3 rounded-lg transition";
+    botao.onclick = () => verificarRespostaFixa(letra, pergunta, botao);
+    optionsGrid.appendChild(botao);
+  }
+}
+
+function verificarRespostaFixa(resposta, pergunta, botao) {
+  // desabilita temporariamente para evitar cliques múltiplos
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  // resposta correta (letra)
+  if (resposta === pergunta.correta) {
+    // pontos: 1 na 1ª tentativa, 0.5 na 2ª
+    const pontosGanhos = tentativa === 1 ? 1 : 0.5;
+    score += pontosGanhos;
+    botao.classList.add('correct');
+    playSoundWithMusicFade(soundCorrect);
+
+    feedbackMessage.textContent = tentativa === 1
+      ? "✅ Resposta correta!"
+      : `✅ Acertou na segunda tentativa! (+${pontosGanhos} ponto${pontosGanhos !== 1 ? 's' : ''})`;
+
+    setTimeout(() => {
+      feedbackMessage.textContent = '';
+      perguntaAtual++;
+      questionCount++;
+      tentativa = 1;
+      updateUI();
+
+      if (questionCount < totalQuestions) carregarProximaPergunta();
+      else endGame();
+    }, 1500);
+
+  } else {
+    // errou
+    botao.classList.add('wrong');
+    playSoundWithMusicFade(soundWrong);
+
+    if (tentativa === 1) {
+      // primeira tentativa: mostra dica e permite nova tentativa com alternativas invertidas/embaralhadas
+      const dicaTexto = pergunta.dica ? pergunta.dica : "Pense na operação com calma.";
+      feedbackMessage.textContent = `❌ Errado! 💡 Dica: ${dicaTexto}`;
+      tentativa = 2;
+
+      // mantém dica visível por 3s, depois reabilita os botões e inverte/embaralha
+      setTimeout(() => {
+        feedbackMessage.textContent = "Tente novamente!";
+        // Inverte a ordem visual das opções (simples) para segunda tentativa
+        const botoes = Array.from(optionsGrid.querySelectorAll('.option-btn'));
+        botoes.reverse().forEach(b => optionsGrid.appendChild(b));
+
+        // limpar classes e reabilitar
+        document.querySelectorAll('.option-btn').forEach(b => {
+          b.disabled = false;
+          b.classList.remove('wrong', 'correct');
+        });
+      }, 3000);
+
+    } else {
+      // segunda tentativa: errou novamente -> próxima questão
+      feedbackMessage.textContent = "❌ Errou novamente! Próxima questão...";
+      tentativa = 1;
+      setTimeout(() => {
+        feedbackMessage.textContent = '';
+        perguntaAtual++;
+        questionCount++;
+        updateUI();
+        if (questionCount < totalQuestions) carregarProximaPergunta();
+        else endGame();
+      }, 2000);
+    }
+  }
+}
+
+// ===================== PERGUNTAS AUTOMÁTICAS =====================
+function rand(max) {
+  return Math.floor(Math.random() * max) + 1;
+}
+
+function getRandomOperator(level) {
+  if (level === 1) return ['+', '-'][Math.floor(Math.random() * 2)];
+  return operators[Math.floor(Math.random() * operators.length)];
+}
+
+function getOperands(operator, level) {
+  let num1, num2, result;
+  let max = level === 1 ? 20 : (level === 2 ? 50 : 100);
+  switch (operator) {
+    case '+': num1 = rand(max); num2 = rand(max); result = num1 + num2; break;
+    case '-': num1 = rand(max); num2 = rand(max); if (num2 > num1) [num1, num2] = [num2, num1]; result = num1 - num2; break;
+    case '×': num1 = rand(level === 1 ? 5 : 10); num2 = rand(level === 1 ? 5 : 10); result = num1 * num2; break;
+    case '÷': num2 = rand(level === 1 ? 5 : 10); result = rand(level === 1 ? 5 : 10); num1 = num2 * result; break;
+  }
+  return { num1, num2, result, operator };
+}
+
+function generateProblem() {
+  let operator, num1, num2, result, key;
+  do {
+    operator = getRandomOperator(gameLevel);
+    ({ num1, num2, result } = getOperands(operator, gameLevel));
+    key = `${num1}${operator}${num2}`;
+  } while (lastQuestions.includes(key));
+
+  lastQuestions.push(key);
+  if (lastQuestions.length > 6) lastQuestions.shift();
+
+  // reset tentativa e feedback
+  tentativa = 1;
+  feedbackMessage.textContent = '';
+
+  questionElement.textContent = `${num1} ${operator} ${num2} = ?`;
+  currentCorrectAnswer = result;
+  generateOptions(result, operator);
+}
+
+function generateOptions(correct, operator) {
+  currentOptions = [correct];
+  while (currentOptions.length < 4) {
+    let delta = Math.floor(Math.random() * 9) - 4;
+    if (delta === 0) continue;
+    let wrong = correct + delta;
+    if (wrong >= 0 && !currentOptions.includes(wrong)) currentOptions.push(wrong);
+  }
+  currentOptions.sort(() => Math.random() - 0.5);
+  optionsGrid.innerHTML = '';
+  currentOptions.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.textContent = String(opt);
+    btn.className = 'option-btn bg-blue-200 hover:bg-blue-300 p-3 rounded-lg transition';
+    btn.onclick = () => checkAnswer(opt, btn, operator);
+    optionsGrid.appendChild(btn);
+  });
+}
+
+// Embaralha array (auxiliar)
+function embaralharArray(array) {
+  // version that returns a newly shuffled array
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function gerarDicaAutomatica(operator, num1, num2) {
+  switch (operator) {
+    case '+': return "Dica: some as duas parcelas.";
+    case '-': return "Dica: subtraia a segunda da primeira.";
+    case '×': return "Dica: pense em grupos (multiplicação).";
+    case '÷': return "Dica: divisão é quantas vezes cabe.";
+    default: return "Dica: revise a operação.";
+  }
+}
+
+function checkAnswer(selected, button, operator) {
+  // desabilita para evitar múltiplos cliques
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  if (selected === currentCorrectAnswer) {
+    const pontosGanhos = tentativa === 1 ? 1 : 0.5;
+    score += pontosGanhos;
+    button.classList.add('correct');
+    playSoundWithMusicFade(soundCorrect);
+
+    feedbackMessage.textContent = tentativa === 1
+      ? "✅ Resposta correta!"
+      : `✅ Acertou na segunda tentativa! (+${pontosGanhos} ponto${pontosGanhos !== 1 ? 's' : ''})`;
+
+    setTimeout(() => {
+      feedbackMessage.textContent = '';
+      questionCount++;
+      tentativa = 1;
+      updateUI();
+      if (questionCount < totalQuestions) carregarProximaPergunta();
+      else endGame();
+    }, 1500);
+
+  } else {
+    // errou
+    button.classList.add('wrong');
+    playSoundWithMusicFade(soundWrong);
+
+    if (tentativa === 1) {
+      // primeira tentativa: mostra dica e permite nova tentativa (embaralha)
+      const dica = gerarDicaAutomatica(operator);
+      feedbackMessage.textContent = `❌ Errado! 💡 ${dica}`;
+      tentativa = 2;
+
+      setTimeout(() => {
+        feedbackMessage.textContent = "Tente novamente!";
+        // Embaralha visualmente os botões para segunda tentativa
+        const botoes = Array.from(optionsGrid.querySelectorAll('.option-btn'));
+        const shuffled = embaralharArray(botoes);
+        shuffled.forEach(b => optionsGrid.appendChild(b));
+
+        // limpar classes e reabilitar
+        document.querySelectorAll('.option-btn').forEach(b => {
+          b.disabled = false;
+          b.classList.remove('wrong', 'correct');
+        });
+      }, 3000);
+
+    } else {
+      // segunda tentativa: errou novamente -> próxima
+      feedbackMessage.textContent = "❌ Errou novamente! Próxima questão...";
+      tentativa = 1;
+      setTimeout(() => {
+        feedbackMessage.textContent = '';
+        questionCount++;
+        updateUI();
+        if (questionCount < totalQuestions) carregarProximaPergunta();
+        else endGame();
+      }, 2000);
+    }
+  }
+}
 
 
 // ===================== FIM DE JOGO =====================
@@ -267,6 +508,40 @@ document.getElementById("fechar-ranking").addEventListener("click", () => {
 
 
 // ===================== AUXILIARES =====================
+async function adicionarAoRanking(novoJogador) {
+  const { error } = await supabase
+    .from('ranking')
+    .insert([{
+      nome: novoJogador.nome,
+      estrelas: novoJogador.estrelas,
+      nivel: novoJogador.nivel,
+      pontos: novoJogador.pontos
+    }]);
+
+  if (error) {
+    console.error('Erro ao salvar jogador:', error);
+  } else {
+    console.log('Jogador salvo com sucesso no ranking!');
+  }
+
+  exibirRanking();
+}
+
+
+function obterNomeDoNivel(nivel) {
+  return nivel === 1 ? "Fácil" : nivel === 2 ? "Médio" : "Difícil";
+}
+
+// ===================== FUNÇÕES AUXILIARES =====================
+function playSoundWithMusicFade(sound) {
+  if (!sound) return;
+  const previousVolume = backgroundMusic.volume;
+  backgroundMusic.volume = 0.1;
+  sound.currentTime = 0;
+  sound.play().catch(console.log);
+  sound.addEventListener('ended', () => backgroundMusic.volume = previousVolume, { once: true });
+}
+
 function updateUI() {
   scoreDisplay.textContent = score;
   totalQuestionsDisplay.textContent = totalQuestions;

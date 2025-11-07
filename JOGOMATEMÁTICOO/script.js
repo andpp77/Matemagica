@@ -193,66 +193,98 @@ async function endGame() {
 }
 
 // ===================== RANKING =====================
+// Versão robusta e com logs para depuração
 function exibirRanking() {
   const verRankingBtn = document.getElementById('ver-ranking-btn');
   const rankingModal = document.getElementById('ranking-modal');
   const fecharRankingBtn = document.getElementById('fechar-ranking');
   const rankingList = document.getElementById('ranking-completo-list');
 
-  if (!verRankingBtn || !rankingModal || !fecharRankingBtn || !rankingList) return;
+  // Log inicial para checar se os elementos existem
+  console.log('exibirRanking: elementos:', { verRankingBtn, rankingModal, fecharRankingBtn, rankingList });
 
-  verRankingBtn.addEventListener('click', async () => {
-    rankingModal.classList.remove('hidden');
+  if (!verRankingBtn) {
+    console.error('BOTÃO "ver-ranking-btn" não encontrado no DOM.');
+    return;
+  }
+  if (!rankingModal) {
+    console.error('MODAL "ranking-modal" não encontrado no DOM.');
+    return;
+  }
+  if (!fecharRankingBtn) {
+    console.error('BOTÃO "fechar-ranking" não encontrado no DOM.');
+    return;
+  }
+  if (!rankingList) {
+    console.error('LISTA "ranking-completo-list" não encontrada no DOM.');
+    return;
+  }
+
+  // Função que busca e renderiza o ranking (separada para poder ser chamada direto)
+  async function fetchAndRenderRanking() {
     rankingList.innerHTML = '<p>Carregando ranking...</p>';
+    try {
+      console.log('Buscando ranking no Supabase...');
+      const { data, error } = await supabase
+        .from('ranking')
+        .select('*')
+        .order('estrelas', { ascending: false })
+        .limit(10);
 
-    const { data, error } = await supabase
-      .from('ranking')
-      .select('*')
-      .order('estrelas', { ascending: false })
-      .limit(10);
+      if (error) {
+        console.error('Erro do Supabase:', error);
+        rankingList.innerHTML = '<p>Erro ao carregar ranking. Veja console.</p>';
+        return;
+      }
 
-    if (error) {
-      rankingList.innerHTML = '<p>Erro ao carregar ranking 😢</p>';
-      console.error(error);
-      return;
+      console.log('Dados recebidos do Supabase:', data);
+      if (!data || data.length === 0) {
+        rankingList.innerHTML = '<p>Nenhum registro encontrado.</p>';
+        return;
+      }
+
+      // usa sua função de render se existir; caso contrário renderiza aqui
+      if (typeof renderRanking === 'function') {
+        renderRanking(data);
+      } else {
+        rankingList.innerHTML = '';
+        data.forEach(jogador => {
+          const item = document.createElement('li');
+          item.className = 'flex flex-col p-2 bg-gray-50 rounded-md mb-2';
+          item.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-blue-800">${jogador.nome}</span>
+              <div>${'★'.repeat(jogador.estrelas)}</div>
+            </div>
+            <p class="text-gray-600 text-sm">Nível: ${jogador.nivel} • Pontos: ${jogador.pontos ?? 0}</p>
+          `;
+          rankingList.appendChild(item);
+        });
+      }
+    } catch (err) {
+      console.error('Erro ao buscar ranking:', err);
+      rankingList.innerHTML = '<p>Erro interno ao carregar ranking. Veja console.</p>';
     }
+  }
 
-    renderRanking(data); // usa a função que já formata a lista
-  });
+  // Evento de clique do botão - abre modal e busca ranking
+  verRankingBtn.removeEventListener('click', verRankingBtn._handler); // remove handler antigo se tiver
+  const handler = async () => {
+    console.log('ver-ranking-btn clicado');
+    rankingModal.classList.remove('hidden');
+    await fetchAndRenderRanking();
+  };
+  verRankingBtn.addEventListener('click', handler);
+  verRankingBtn._handler = handler; // guarda referência para possível remoção
 
+  // Fechar modal
   fecharRankingBtn.addEventListener('click', () => {
+    console.log('fechar-ranking clicado');
     rankingModal.classList.add('hidden');
   });
-}
 
-async function adicionarAoRanking(novoJogador) {
-  const { error } = await supabase
-    .from('ranking')
-    .insert([novoJogador]);
-
-  if (error) console.error('Erro ao salvar jogador:', error);
-  exibirRanking();
-}
-
-function renderRanking(lista) {
-  const rankingList = document.getElementById('ranking-completo-list');
-  if (!rankingList) return;
-
-  rankingList.innerHTML = '';
-  lista.forEach(jogador => {
-    const item = document.createElement('li');
-    item.className = 'flex flex-col p-2 bg-gray-50 rounded-md mb-2';
-    item.innerHTML = `
-      <div class="flex items-center justify-between">
-        <span class="font-bold text-blue-800">${jogador.nome}</span>
-        <div>${'★'.repeat(jogador.estrelas)}</div>
-      </div>
-      <p class="text-gray-600 text-sm">
-        Nível: ${jogador.nivel} • Pontos: ${jogador.pontos ?? 0}
-      </p>
-    `;
-    rankingList.appendChild(item);
-  });
+  // *** debug helper: se quiser abrir automaticamente ao carregar para testar:
+  // fetchAndRenderRanking();
 }
 
 // ===================== AUXILIARES =====================

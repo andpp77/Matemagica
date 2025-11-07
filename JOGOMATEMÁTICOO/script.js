@@ -255,6 +255,16 @@ function exibirRanking() {
   });
 }
 
+// Botão para abrir o ranking
+document.getElementById("ver-ranking-btn").addEventListener("click", () => {
+  document.getElementById("ranking-modal").classList.remove("hidden");
+});
+
+// Botão para fechar o ranking
+document.getElementById("fechar-ranking").addEventListener("click", () => {
+  document.getElementById("ranking-modal").classList.add("hidden");
+});
+
 
 // ===================== AUXILIARES =====================
 function updateUI() {

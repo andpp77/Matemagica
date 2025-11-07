@@ -787,6 +787,9 @@
 }
 
 /*======================= FINAL TELA DE JOGO THEO ======================*/
+.hidden {
+  display: none !important;
+}
 
 
 

@@ -193,99 +193,68 @@ async function endGame() {
 }
 
 // ===================== RANKING =====================
-// Versão robusta e com logs para depuração
 function exibirRanking() {
   const verRankingBtn = document.getElementById('ver-ranking-btn');
   const rankingModal = document.getElementById('ranking-modal');
   const fecharRankingBtn = document.getElementById('fechar-ranking');
   const rankingList = document.getElementById('ranking-completo-list');
 
-  // Log inicial para checar se os elementos existem
-  console.log('exibirRanking: elementos:', { verRankingBtn, rankingModal, fecharRankingBtn, rankingList });
-
-  if (!verRankingBtn) {
-    console.error('BOTÃO "ver-ranking-btn" não encontrado no DOM.');
-    return;
-  }
-  if (!rankingModal) {
-    console.error('MODAL "ranking-modal" não encontrado no DOM.');
-    return;
-  }
-  if (!fecharRankingBtn) {
-    console.error('BOTÃO "fechar-ranking" não encontrado no DOM.');
-    return;
-  }
-  if (!rankingList) {
-    console.error('LISTA "ranking-completo-list" não encontrada no DOM.');
+  // ✅ Verificação de elementos
+  if (!verRankingBtn || !rankingModal || !fecharRankingBtn || !rankingList) {
+    console.error("⚠️ Elementos do ranking não encontrados. Verifique os IDs no HTML.");
     return;
   }
 
-  // Função que busca e renderiza o ranking (separada para poder ser chamada direto)
-  async function fetchAndRenderRanking() {
-    rankingList.innerHTML = '<p>Carregando ranking...</p>';
-    try {
-      console.log('Buscando ranking no Supabase...');
-      const { data, error } = await supabase
-        .from('ranking')
-        .select('*')
-        .order('estrelas', { ascending: false })
-        .limit(10);
-
-      if (error) {
-        console.error('Erro do Supabase:', error);
-        rankingList.innerHTML = '<p>Erro ao carregar ranking. Veja console.</p>';
-        return;
-      }
-
-      console.log('Dados recebidos do Supabase:', data);
-      if (!data || data.length === 0) {
-        rankingList.innerHTML = '<p>Nenhum registro encontrado.</p>';
-        return;
-      }
-
-      // usa sua função de render se existir; caso contrário renderiza aqui
-      if (typeof renderRanking === 'function') {
-        renderRanking(data);
-      } else {
-        rankingList.innerHTML = '';
-        data.forEach(jogador => {
-          const item = document.createElement('li');
-          item.className = 'flex flex-col p-2 bg-gray-50 rounded-md mb-2';
-          item.innerHTML = `
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-blue-800">${jogador.nome}</span>
-              <div>${'★'.repeat(jogador.estrelas)}</div>
-            </div>
-            <p class="text-gray-600 text-sm">Nível: ${jogador.nivel} • Pontos: ${jogador.pontos ?? 0}</p>
-          `;
-          rankingList.appendChild(item);
-        });
-      }
-    } catch (err) {
-      console.error('Erro ao buscar ranking:', err);
-      rankingList.innerHTML = '<p>Erro interno ao carregar ranking. Veja console.</p>';
-    }
-  }
-
-  // Evento de clique do botão - abre modal e busca ranking
-  verRankingBtn.removeEventListener('click', verRankingBtn._handler); // remove handler antigo se tiver
-  const handler = async () => {
-    console.log('ver-ranking-btn clicado');
+  verRankingBtn.addEventListener('click', async () => {
     rankingModal.classList.remove('hidden');
-    await fetchAndRenderRanking();
-  };
-  verRankingBtn.addEventListener('click', handler);
-  verRankingBtn._handler = handler; // guarda referência para possível remoção
+    rankingList.innerHTML = `<p class="text-center text-gray-600">Carregando ranking...</p>`;
 
-  // Fechar modal
-  fecharRankingBtn.addEventListener('click', () => {
-    console.log('fechar-ranking clicado');
-    rankingModal.classList.add('hidden');
+    console.log("🔍 Buscando ranking no Supabase...");
+
+    const { data, error } = await supabase
+      .from('ranking')
+      .select('*')
+      .order('pontos', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error("❌ Erro Supabase:", error);
+      rankingList.innerHTML = `<p class="text-center text-red-500">Erro ao carregar ranking 😢</p>`;
+      return;
+    }
+
+    console.log("✅ Dados recebidos:", data);
+
+    if (!data || data.length === 0) {
+      rankingList.innerHTML = `<p class="text-center text-gray-500">Nenhum jogador encontrado ainda.</p>`;
+      return;
+    }
+
+    // ✅ Renderização manual garantida
+    let html = "";
+    data.forEach((jogador, index) => {
+      html += `
+        <li class="flex flex-col p-3 bg-gray-50 rounded-xl shadow border border-gray-200 mb-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-blue-800 text-lg">${index + 1}. ${jogador.nome}</span>
+            <span class="text-yellow-500 text-lg">${'★'.repeat(jogador.estrelas ?? 0)}</span>
+          </div>
+          <p class="text-gray-700 text-sm mt-1">
+            Nível: <b>${jogador.nivel ?? '-'}</b> • Pontos: <b>${jogador.pontos ?? 0}</b>
+          </p>
+        </li>`;
+    });
+
+    rankingList.innerHTML = html;
+
+    console.log("✅ Ranking renderizado na tela!");
   });
 
-  // *** debug helper: se quiser abrir automaticamente ao carregar para testar:
-  // fetchAndRenderRanking();
+  fecharRankingBtn.addEventListener('click', () => {
+    rankingModal.classList.add('hidden');
+  });
 }
+
 
 // ===================== AUXILIARES =====================
 function updateUI() {
@@ -304,3 +273,7 @@ function updateLevel() {
 function obterNomeDoNivel(nivel) {
   return nivel === 1 ? "Fácil" : nivel === 2 ? "Médio" : "Difícil";
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  exibirRanking();
+});

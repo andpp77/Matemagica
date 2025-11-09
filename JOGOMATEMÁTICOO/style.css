@@ -35,9 +35,7 @@
   to { transform: rotate(360deg); }
 }
 
-#ver-ranking-btn{
-  margin: 30px;
-}
+
 
 /*==================TELA PRINCIPAL - ALTERAÇÕES THEO ========================*/
 
@@ -91,6 +89,7 @@
   animation: blink 1.5s infinite alternate;
   opacity: 0.8;
   pointer-events: none; /* não interfere em cliques */
+  z-index: 1; 
 }
 
 @keyframes blink {
@@ -125,6 +124,7 @@
   width: min(60vw, 300px); /* até 300px, mas encolhe no mobile */
   height: auto;
   margin-bottom: 2rem;
+  z-index: 5;
 }
 
 .mascote {
@@ -155,6 +155,7 @@
   text-shadow: 0 0 8px #fde68a, 0 0 12px #fbbf24;
   margin-bottom: 1.5rem;
   text-align: center;
+  z-index: 5;
 }
 
 /* Botão começar aventura */
@@ -169,8 +170,9 @@
   transition: all 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   animation: pulseBtn 2s infinite, glowBtn 3s infinite alternate;
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.6);
-  z-index: 10;
+  z-index: 5;
 }
+
 
 #start-btn:hover { transform: scale(1.05); }
 
@@ -181,6 +183,24 @@
   }
   #start-btn {
     width: 50%; padding: 0.5rem; 
+  }
+}
+
+/* para celulares pequenos (até 480px de largura) */
+@media (max-width: 480px) {
+  #start-btn {
+    width: 65%;          /* mais estreito que antes */
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;   /* texto menor */
+  }
+
+  .title {
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .mascote-container {
+    margin-bottom: 1rem;
   }
 }
 
@@ -201,15 +221,13 @@
 
 /*===================FINAL TELA INICIAL================= */
 
-
-
 /* ==================== Tela de Identificação - THEO ==================== */
 
 /*ESPELHADO COM A TELA INICIAL*/
 #name-screen {
   position: fixed;
   inset: 0;
-  display: none; /* escondida até ativar */
+  display: flex ; /* escondida até ativar */
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -271,12 +289,18 @@
   font-size: 0.75rem;       /* texto menor */
   font-weight: bold;
   color: white;
-  background: linear-gradient(135deg, #4338ca, #2563eb, #f59e0b);
+  background: linear-gradient(135deg, #6a0dad, #7c3aed, #a855f7, #9333ea);
   background-size: 200% 200%;
   border: 2px solid rgba(255,255,255,0.3);
   cursor: pointer;
   box-shadow: 0 0 10px rgba(255,255,255,0.4), 0 0 15px rgba(250,204,21,0.5);
   transition: all 0.3s ease-in-out;
+}
+
+#back-btn:hover {
+  background-position: 100% 0;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 30px rgba(124, 58, 237, 0.5);
 }
 
 /* Ícone */
@@ -360,26 +384,171 @@
   transform: scale(1.05);
 }
 
-/*Responsivo*/
-@media (max-width: 768px) {
-  .title2 { font-size: 2rem; }
-  #player-name { width: 50%; padding: 0.5rem; }
-  #confirm-name-btn { width: 30%; padding: 0.5rem; }
-  .creditos { font-size: 0.8rem; }
+/* =======================Botao de Créditos ======================= */
+.hidden {
+  display: none !important;
 }
+
+#credits-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Fundo mágico com desfoque */
+#credits-modal .modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px); /* desfoque do fundo */
+}
+
+/* Conteúdo central */
+#credits-modal .modal-content {
+  position: relative;
+  background: rgba(255,255,255,0.05);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 650px;
+  width: 90%;
+  z-index: 10;
+  box-shadow: 0 0 40px rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.3);
+  overflow: hidden;
+}
+
+/* Título */
+#credits-modal h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  text-shadow: 0 0 10px #f0f, 0 0 20px #0ff;
+}
+
+.credits-info {
+  text-align: center;
+  font-size: 1rem;
+  color: #fff;
+  text-shadow: 0 0 5px #f0f, 0 0 10px #0ff;
+  margin-bottom: 1rem; /* espaço entre info e cards */
+  font-weight: 500;
+}
+
+/* Container de cards com scroll */
+.credits-scroll {
+  display: flex;
+  overflow: hidden; /* esconde a barra de rolagem */
+  gap: 1rem;
+  padding: 1rem 0;
+  scroll-behavior: smooth;
+  position: relative; 
+}
+
+/* Cards mágicos */
+.credit-card {
+  flex-shrink: 0;
+  width: 160px;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid #a78bfa;
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255,255,255,0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.credit-card img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  border: 2px solid #fff;
+  box-shadow: 0 0 15px rgba(255,255,255,0.5);
+  transition: transform 0.3s ease;
+}
+.credit-card:hover img {
+  transform: scale(1.15) rotate(-5deg);
+}
+.credit-card:hover {
+  transform: translateY(-10px) rotate(2deg);
+  box-shadow: 0 0 30px rgba(255,255,255,0.7);
+}
+.credit-card span {
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 5px #f0f, 0 0 10px #0ff;
+}
+.credit-card p {
+  font-size: 0.85rem;
+  color: #eee;
+}
+
+/* Botão fechar */
+#close-credits {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: linear-gradient(45deg, #f0f, #0ff);
+  color: #000;
+  border: none;
+  padding: 0.5rem 0.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.75rem; 
+  box-shadow: 0 0 15px #f0f, 0 0 25px #0ff;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+#close-credits:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px #f0f, 0 0 35px #0ff;
+}
+
+#scroll-left,
+#scroll-right {
+    position: absolute; 
+    top: 40%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.1); /* fundo quase transparente */
+    border: none; /* remove a borda padrão */
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 100;
+    padding: 0.1rem 0.1rem;
+    appearance: none; /* remove aparência nativa do botão */
+    -webkit-appearance: none; /* Safari/Chrome */
+    outline: none; /* remove contorno ao focar */
+    color: rgba(255, 255, 255, 0.3); /* seta quase transparente */
+}
+
+#scroll-left {
+  left: 0;
+}
+
+#scroll-right {
+  right: 0;
+} 
 
 /* MASCOTE E BALÃO_ANAAA*/ 
 #mascot-container {
-  position: fixed;
-  top: 50%;
-  left: 5%;
-  transform: translateY(-50%);
   display: none;
-  align-items: flex-start;
+  align-items: center;
   gap: 20px;
   z-index: 1000;
   opacity: 0;
   transition: opacity 0.6s ease, transform 0.6s ease;
+  position: relative; 
+  margin-top: 12rem;   
 }
 
 #mascot-container.show {
@@ -407,13 +576,10 @@
   font-size: clamp(0.8rem, 2.5vw, 1.1rem);
   border-radius: 20px;
   padding: clamp(0.6rem, 3vw, 1.2rem) clamp(0.8rem, 4vw, 1.6rem);
-  max-width: min(70vw, 220px); /* máximo 220px, mas encolhe proporcionalmente */
+  max-width: 220px;
   border: 3px solid #facc15;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   position: relative;
-  transform: translateY(0);
-  margin-top: clamp(40px, 8vh, 80px);
-  line-height: 1.3;
   text-align: center;
   word-wrap: break-word;
 }
@@ -422,7 +588,7 @@
 #speech-bubble::after {
   content: "";
   position: absolute;
-  left: clamp(-12px, -3vw, -15px);
+  left: -15px;
   top: 50%;
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
@@ -430,42 +596,255 @@
   transform: translateY(-50%);
 }
 
-/* Ajustes para telas médias (tablets) */
-@media (max-width: 768px) {
-  #mascot-img { 
-    width: clamp(100px, 18vw, 150px); 
-  }
-  #speech-bubble {
-    margin-top: 40px; /* sobe o balão acima da caixa de nome */
-    font-size: 1rem;
-  }
+
+/* ===================== RESPONSIVIDADE ===================== */
+
+/*TELAS PEQUENA*/
+/* NOVA ATUALIZAÇÃO - THEO*/
+@media (min-width: 360px) and (max-width: 740px) {
   #mascot-container {
-    top: 35%; /* mascote mais acima da tela */
+    flex-direction: row;        
+    align-items: center;
+    justify-content: center;
+    margin-top: 6rem;           /* ajusta altura acima do input */
+    gap: 1rem;
+  }
+
+  #mascot-img {
+    width: clamp(70px, 20vw, 120px);
+    height: auto;
+  }
+
+  #speech-bubble {
+    max-width: 70%;
+    font-size: 0.85rem;
+    margin-bottom: 0;           /* sem espaço extra */
+  }
+
+  /* seta apontando para o mascote */
+  #speech-bubble::after {
+    content: "";
+    position: absolute;
+    top: 50%;                  
+    left: -28px;               
     transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-right: 28px solid #fff; 
+  }
+  #credits-modal .modal-content {
+    width: 95%;
+    padding: 0.5rem;
+  }
+
+  #credits-modal h2 {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .credits-info {
+    font-size: 0.85rem;
+  }
+
+  .credits-scroll {
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .credit-card {
+    width: 110px;
+    padding: 0.6rem;
+  }
+
+  .credit-card img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .credit-card span {
+    font-size: 0.9rem;
+  }
+
+  .credit-card p {
+    font-size: 0.75rem;
+  }
+
+  #close-credits {
+    top: 0.1rem;
+    right: 0.1rem;
+    font-size: 0.65rem;
+    padding: 0.3rem 0.3rem;
+  }
+
+  #scroll-left,
+  #scroll-right {
+    font-size: 0.8rem;
+    top: 35%;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.2);
+    
   }
 }
 
-/* Ajustes para telas pequenas (celulares) */
-@media (max-width: 500px) {
-  #mascot-img { width: 80px; }
-  #speech-bubble {
-    margin-top: 50px; /* balão ainda mais acima do mascote */
-    max-width: 60vw;
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-  }
-  #speech-bubble::after { 
-    left: -10px; 
-    border-right-width: 10px; 
-  }
+/* TELAS MEDIA */
+@media (min-width: 741px) and (max-width: 1023px) {
   #mascot-container {
-    top: 25%; /* mascote bem mais acima da tela */
+    flex-direction: row;        
+    align-items: center;
+    justify-content: center;
+    margin-top: 10rem;           
+    gap: 1rem;
+  }
+
+  #mascot-img {
+    width: clamp(100px, 30vw, 140px);
+    height: auto;
+  }
+
+  #speech-bubble {
+    max-width: 90%;
+    font-size: 1rem;
+    margin-bottom: 1rem;           
+  }
+
+  #speech-bubble::after {
+    content: "";
+    position: absolute;
+    top: 50%;                  
+    left: -28px;               
     transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-right: 28px solid #fff;
+  }
+  #credits-modal .modal-content {
+    max-width: 700px;
+    max-height: 550px;
+    padding: 1rem;
+  }
+
+  #credits-modal h2 {
+    font-size: 1.2rem;
+  }
+
+  .credit-card {
+    width: 140px;
+    padding: 0.8rem;
+  }
+
+  .credit-card img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .credits-info {
+    font-size: 0.95rem;
+  }
+
+  #scroll-left,
+  #scroll-right {
+    font-size: 1.5rem;
+    top:42%;
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+
+/*TELAS GRANDE*/
+@media (min-width: 1024px) and (max-width: 1200px) {
+  #mascot-container {
+    margin-top: 12rem;      
+    justify-content: flex-start; /* alinha à esquerda */
+    align-items: center;
+    margin-left: 1rem;      /* aproxima da esquerda da tela */
+  }
+
+  #mascot-img {
+    width: clamp(80px, 10vw, 120px); /* um pouco menor para não cobrir input */
+    height: auto;
+  }
+
+  #speech-bubble {
+    max-width: 150px;
+    font-size: 1rem;
+  }
+
+  #speech-bubble::after {
+    left: -15px;             /* seta apontando para o input */
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 12px solid #fff;
+  }
+  #credits-modal .modal-content {
+    max-width: 700px;
+    max-height: 550px;
+    padding: 1rem;
+  }
+
+  #credits-modal h2 {
+    font-size: 1.2rem;
+  }
+
+  .credit-card {
+    width: 140px;
+    padding: 0.8rem;
+  }
+
+  .credit-card img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .credits-info {
+    font-size: 0.95rem;
+  }
+
+  #scroll-left,
+  #scroll-right {
+    font-size: 1.5rem;
+    top:42%;
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* ===================== Telas grandes (1201px a 1400px) ===================== */
+@media (min-width: 1201px) and (max-width: 1400px) {
+  #mascot-container {
+    margin-top: 12rem;      
+    justify-content: flex-start; /* alinha à esquerda */
+    align-items: center;
+    gap: 1rem;
+    margin-left: 1rem;      /* aproxima da esquerda da tela */
+  }
+
+  #mascot-img {
+    width: clamp(100px, 12vw, 150px); /* um pouco menor para não cobrir input */
+    height: auto;
+  }
+
+  #speech-bubble {
+    max-width: 180px;
+    font-size: 1rem;
+  }
+
+  #speech-bubble::after {
+    left: -15px;             /* seta apontando para o input */
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 12px solid #fff;
   }
 }
 
 /*======================= FINAL TELA DE IDENTIFICAÇÃO ======================*/
-
 
 
 /*======================= TELA DE JOGO THEO ======================*/
@@ -510,13 +889,79 @@
 }
 
 
+#home-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#home-modal.hidden {
+  display: none;
+}
+
+#home-modal .modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+#home-modal .modal-content {
+  position: relative;
+  background: #1e293b; /* fundo estilo game */
+  color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  z-index: 1;
+  width: 300px;
+  max-width: 80%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.btn-confirm, .btn-cancel {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.1s;
+}
+
+.btn-confirm:hover { transform: scale(1.1); background: #22c55e; }
+.btn-cancel:hover { transform: scale(1.1); background: #ef4444; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
 /*Mascote tamanho e posição*/
 #mascote-game {
   position: absolute;
-  bottom: 10vh;
-  left: 35vh;
+  top: 60%;
+  bottom: auto;
+  left: calc(50% - clamp(200px, 50vw, 480px)); /* mais próximo do game-box */
   width: clamp(100px, 18vw, 200px);
   height: auto;
+  transform: translateY(-50%);
   animation: jumpSpin 2s ease-in-out infinite; /* ativa a animação a mesma da tela de inicio*/
 }
 
@@ -524,7 +969,7 @@
 #mascote-game-container {
   position: absolute;
   bottom: 45vh; 
-  left: 4vw;  
+  left: 1vw;  
   z-index: 60;
   pointer-events: none; 
   display: flex;
@@ -544,12 +989,15 @@
     border: 4px solid #000;
     border-radius: 50% / 45%;
     text-align: center;
-    max-width: clamp(180px, 30vw, 280px);
+    max-width: clamp(180px, 40vw, 300px);
+    min-width: 120px;
     line-height: 1.4;
     box-shadow: 6px 6px 0 #00000066;
     transform: scale(0.95);
     opacity: 0;
     pointer-events: none;
+    word-wrap: break-word; /* quebra palavras grandes */
+    white-space: normal;   /* permite várias linhas */
     transition: transform 300ms ease, opacity 300ms ease;
 }
 
@@ -566,39 +1014,32 @@
     100% { transform: scale(1); }
 }
 
-/*Caldo do balão*/
-#mascot-game-bubble.mascot-bubble::after {
-    content: "";
-    position: absolute;
-    bottom: -8px;   
-    right: 12px;     
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 26px 38px 0 0;
-    border-color: #ffffff transparent transparent transparent;
-    transform: rotate(50deg);
-    z-index: 1;
-}
+
 
 /*Container do jogo*/
 #game-box {
   position: absolute;
-  background: linear-gradient(135deg, #3b0ca3, #6b00b3, #009dff, #0dc0ba);
+  background: linear-gradient(135deg, #6a0dad, #7b2cbf, #c084fc);
   background-size: 300% 300%;
   top: 50%;          
   left: 50%;        
   transform: translate(-50%, -50%); 
   border-radius: 1rem;
-  box-shadow: 0 0 25px rgba(106, 210, 244, 0.534); /* brilho mágico */
+  box-shadow:
+    0 0 20px rgba(106, 210, 244, 0.6),
+    0 0 35px rgba(107, 0, 214, 0.5),
+    0 0 50px rgba(255, 223, 0, 0.2); 
   border: 3px solid rgb(38, 138, 200);
-  width: clamp(300px, 60vw, 600px);
-  min-height: clamp(350px, 70vh, 500px);
+  width: clamp(200px, 35vw, 600px);
+  min-height: clamp(280px, 65vh, 600px); 
+  padding: clamp(1rem, 2vw, 2.5rem);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: magiaDegrade 8s ease infinite;
+  animation: magiaDegrade 3s ease infinite;
 }
+
 
 /* animação do degradê "mágico" */
 @keyframes magiaDegrade {
@@ -607,23 +1048,24 @@
   100% { background-position: 0% 50%; }
 }
 
+
 /*Titulo*/
 #game-title {
   font-size: clamp(1.5rem, 3vw, 2rem);
   color: #000; /* preto elegante */
-  font-weight: 100; /* o mais leve possível */
+  font-weight: 100; 
   text-shadow: 0 0 15px #7dd3fc;  
-  margin-top: 2.5rem; /* mais espaçamento do topo */
-  margin-bottom: 2rem;
+  margin-top: 0.5rem; 
+  margin-bottom: 1rem;
   font-family: 'Luckiest Guy', cursive;
-  letter-spacing: 1px; /* opcional: deixa as letras um pouco mais "arejadas" */
+  letter-spacing: 3px; 
 }
 
 /* Barra de progresso */
 #progress-bar-container {
   width: 80%;
   max-width: 550px;
-  height: 20px;
+  height: 15px;
   background-color: #e0e0e0;
   border-radius: 10px;
   margin-bottom: 2rem;
@@ -637,6 +1079,7 @@
   border-radius: 10px;
   transition: width 0.3s ease;
 }
+
 
 /* Container interno (questões) */
 #question-area {
@@ -709,119 +1152,693 @@
 }
 
 
-/* Responsividade */
-@media (max-width: 600px) {
+/* ========================================== Responsividade ================================================*/
 
+
+/* Celulares pequenos e padrão */
+@media (max-width: 480px) {
+  /* Game box adaptado (menor altura) */
   #game-box {
-    top: 42%;              
-    transform: translate(-50%, -55%);
-    width: 90%;
-    min-height: 70vh;
+    width: 90vw;
+    min-height: 35vh; /* Altura reduzida */
     padding: 1rem;
+    top: 15%; /* sobe um pouco pra dar espaço pro mascote */
+    transform: translate(-50%, 0);
   }
 
-  #game-title {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    font-size: 1.4rem;
-  }
-
-  #progress-bar-container {
-    margin-bottom: 1rem;
-    height: 16px;
-  }
-
-  #question-area {
-    padding: 1.5rem;
-    font-size: 1rem;
-    margin-top: 1rem;
-  }
-
-  .option-btn {
-    width: 85%;
-    padding: 0.6rem 1rem;
-    margin: 0.4rem 0;
-  }
-
-  /*Mascote no canto inferior direito */
-  #mascote-game {
-    left: auto;
-    right: 6vw;
-    bottom: 4vh;
-    width: clamp(80px, 22vw, 120px);
-  }
-
-  /* Balão do lado esquerdo do mascote */
+  /* Mascote e balão abaixo do game-box */
   #mascote-game-container {
-    bottom: 12vh;     
-    left: auto;
-    right: 35vw;      
+    position: fixed;
+    bottom: 7rem;       /* distância da borda inferior */
+    left: 1rem;        /* distância da borda direita */
+    display: flex;
+    flex-direction: row; /* balão à esquerda, mascote à direita */
+    align-items: center; /* alinha balão e mascote verticalmente */
     justify-content: flex-end;
-    align-items: flex-end;
+    gap: 0.5rem;
+    width: auto;
+    pointer-events: none;
+    z-index: 60;
+  }
+
+  #mascote-game {
+    margin-top: 60px;
+    height: 100px;
+    left: 250px;
+    animation: jumpSpin 2s ease-in-out infinite;
+    position: relative; /* remove o left fixo */
+    margin-left: 0; /* garante que não empurre o balão */
   }
 
   #mascot-game-bubble.mascot-bubble {
-    max-width: 220px;
-    padding: 18px 16px;
-    font-size: 0.9rem;
+    order: -1;             /* balão à esquerda do mascote */
+    display: inline-block;  /* ajusta largura ao conteúdo */
+    max-width: 60vw;        /* largura máxima adaptável */
+    min-width: 40px;        /* largura mínima */
+    padding: 18px 21px;     /* aumenta o espaço interno */
+    font-size: 0.60rem;
+    line-height: 1.1;
+    white-space: normal;    /* permite quebra de linhas */
+    word-wrap: break-word;  /* força quebra de palavras longas */
+    text-align: left;
+    border-radius: 50% / 45%; /* mantém estilo arredondado */
   }
 
-  /* Cauda para o lado direito */
-  #mascot-game-bubble.mascot-bubble::before {
-    display: none;
+  /* Ajustes do título e área de questões */
+  #game-title {
+    font-size: 1.4rem;
+    letter-spacing: 1px;
   }
 
-  /*Calda em tela pequena*/
-  #mascot-game-bubble.mascot-bubble::after {
-    top: 55%; 
-    left: 96%; 
-    bottom: auto; 
-    margin-top: -12px; 
-    width: 0;
-    height: 0;
-    border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
-    border-left: 20px solid #fff; 
-    transform: rotate(5deg);
+  #question-area {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  .option-btn {
+    padding: 0.4rem 0.9rem;
+    margin: 0.25rem;
+    font-size: 0.85rem;
+  }
+
+  #progress-bar-container {
+    width: 85%;
+    height: 10px;
   }
 }
 
+
 /*======================= FINAL TELA DE JOGO THEO ======================*/
-
-
-
-
-
-
 
 
 /* ===============================
    Fim de jogo
 ================================ */
-#end-game-screen h2 {
-  animation: pop 0.5s ease-in-out;
-}
 
-@keyframes pop {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+
+/* ===============================
+   TELA DE RANKING FINAL - ANAA
+================================ */
+
+#end-screen {
+  position: fixed;
+  inset: 0;
+  display: none; /*alteraçaõ feita*/
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: url('nova_sala_mago.png') center center / cover no-repeat;
+  background-color: #29192e;
+  backdrop-filter: blur(2px);
+  color: #fff;
+  font-family: 'Luckiest Guy', cursive;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  padding-top: 30px;
 }
 
 /* ===============================
-   ID do Usuário
+   PERGAMINHO CENTRAL
 ================================ */
-.user-id {
-  font-size: 0.85rem;
-  color: #6b7280;
-  text-align: center;
-  margin-top: 1rem;
+.scroll-container {
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(180px, 45vw, 260px); /* ALTERADO THEO responsivo: min 180px, max 260px */
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
 }
 
-/*THEO - Final do jogo*/
-#end-game-screen {
-  justify-content: flex-start;
-  padding-top: 4rem;
-  padding-bottom: 4rem;
-  max-height: 80vh;              /* evita cortar conteúdo */
-  overflow-y: auto;              /* scroll interno se necessário */
+.scroll-image {
+  width: 262px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgb(0 0 0));
+}
+
+.scroll-content {
+  position: absolute;
+  top: 47%;
+  left: 49%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  text-align: center;
+  color: #000000;
+  font-family: "Poppins", sans-serif;
+  text-shadow: 0 1px 2px #676767;
+}
+
+.scroll-title {
+  font-family: 'Luckiest Guy', cursive;
+  color: #8e0000;
+  font-size: clamp(1.53rem, 2.5vw, 1.4rem);
+  font-weight: 230; 
+  margin-bottom: 16px;
+  letter-spacing: 0.9px;
+  text-shadow: 0 0 12px rgb(234, 213, 31, 0.9);
+}
+
+.scroll-content p {
+  text-align: center;
+  font-size: clamp(0.80rem, 2vw, 0.9rem);
+  font-weight: 790;
+  margin-bottom: 0.8rem;
+  color:#2e1500;
+}
+
+.scroll-btn {
+  background: linear-gradient(180deg, #2b1654, #520f46);
+  color: #eac4c4;
+  font-weight: 600;
+  border: none;
+  padding: 9px 8px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: clamp(0.6rem, 2vw, 0.75rem);
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  margin-top: -9px;
+  box-shadow: 0 0 10px rgb(255 230 93 / 60%);
+  animation: magicGlow 2s infinite ease-in-out;
+}
+.scroll-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(255, 255, 150, 0.8);
+  background: linear-gradient(180deg, #ffe27a, #b8771e);
+}
+
+/*efeito brilho magico*/
+@keyframes magicGlow{
+  0%{
+    box-shadow: 0 0 10px rgb(225 192 14 / 85%);
+  }
+  50%{
+    box-shadow: 0 0 25px rgb(255 255 41);
+  }
+  100%{
+    box-shadow: 0 0 10px rgb(228 195 17);
+  }
+}
+
+/*efeito brilho magico*/
+@keyframes magicGlow{
+  0%{
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+  50%{
+    box-shadow: 0 0 25px rgba(255, 255, 150, 1);
+  }
+  100%{
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+}
+
+/* ===============================
+   PODIO CENTRAL
+================================ */
+.podium-container {
+  position: absolute;
+  bottom: -27%;
+  left: 49%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.podium-image {
+  width: 563px;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(255, 230, 150, 0.5));
+}
+
+/* ===============================
+   TOP 3 - PERGAMINHOS DO PODIO
+================================ */
+.top3-container {
+  position: absolute;
+  bottom: 135px; /* altura exata sobre o podio */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 5;
+}
+
+.scroll-1, .scroll-2, .scroll-3 {
+  position: absolute;
+}
+
+.scroll-1 {
+  left: 50%;
+  transform: translate(-50%, 8px) scale(1.17);
+  z-index: 77;
+}
+
+.scroll-2 {
+  left: 17%;
+  transform: translate(-100%, 76px) scale(1);
+}
+
+.scroll-3 {
+  right: 20%;
+  transform: translate(89%, 90px) scale(1);
+}
+
+/* ===============================
+   PÓDIO - NOMES, NÍVEIS E PONTOS
+================================ */
+.podium-info {
+  position: absolute;
+  top: 67%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+  font-family: 'Luckiest Guy', cursive;
+  z-index: 30;
+}
+
+.podium-info .player {
+  background: rgba(60, 0, 90, 0.5);
+  border: 2px solid #b47aff;
+  border-radius: 15px;
+  padding: 8px 14px;
+  box-shadow: 0 0 15px rgba(187, 134, 252, 0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 160px;
+}
+
+.podium-info .player:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 200, 0, 0.9);
+}
+
+.podium-info h3 {
+  color: #ffd700;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  text-shadow: 0 0 8px #ffcc00;
+}
+
+.podium-info .player-name {
+  font-size: 1.1rem;
+  color: #fff;
+  text-shadow: 0 0 6px #ffb347;
+}
+
+.podium-info .player-level {
+  font-size: 0.8rem;
+  color: #d1b3ff;
+  text-shadow: 0 0 6px #a78bfa;
+}
+
+.podium-info .player-score {
+  font-size: 0.9rem;
+  color: #ffdf91;
+  text-shadow: 0 0 8px #ff8800;
+}
+
+/* Cores por posição */
+.podium-info .first {
+  transform: translateY(-60px);
+  border-color: #ffd700;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+}
+
+.podium-info .second {
+  transform: translateY(-20px);
+  border-color: #c0c0c0;
+}
+
+.podium-info .third {
+  transform: translateY(-10px);
+  border-color: #cd7f32;
+}
+
+
+/* ===============================
+   COLUNAS LATERAIS DE RANKING
+================================ */
+.ranking-columns {
+  position: absolute;
+  top: 50%;
+  left: 56%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: space-between;
+  width: 85%;
+  max-width: 1200px;
+  align-items: flex-start;
+  z-index: 15;
+  pointer-events: auto;
+  gap: 40px;
+}
+
+.ranking-column {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Coluna esquerda */
+.left-column {
+  align-items: flex-end;
+  margin-top: 5px;
+}
+
+/* Coluna direita */
+.right-column {
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 2%;
+  right: 5%;
+  transform: translateY(-2px) translateX(430px)
+}
+
+.scroll-container,
+.podium-container{
+  pointer-events: none;
+}
+/* ===============================
+   CARTAS MAGICAS
+================================ */
+.small-scroll {
+  background: rgba(100, 50, 150, 0.7); 
+  border: 3px solid #ff00ff; 
+  border-radius: 25px;
+  padding: 10px;
+  box-shadow: 0 0 15px #ff00ff, inset 0 0 10px #ff00ff; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 140px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  pointer-events: auto;
+  z-index: 21;
+}
+.small-scroll:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 25px #ff00ff, inset 0 0 10px #ff00ff;
+}
+
+/* icones e textos */
+.nivel-icon {
+  font-size: 1.3rem;
+  margin-right: 3px;
+}
+.small-scroll h3 {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 0.95rem;
+  color: #ffde54;
+  text-shadow: 1px 1px 0 #4a044e;
+  margin-bottom: 0;
+}
+.small-scroll p {
+  font-size: 0.80rem;
+  color: #d8b4fe;
+  margin-left: 10px;
+  margin-bottom: 0.2rem;
+}
+
+/* Cristais */
+.crystals {
+  color: #ff00ff;
+  font-size: 0.85rem;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.crystals.one-star,
+.crystals.two-stars {
+  justify-content: center;
+  margin-right: 0;
+}
+
+
+
+/**======================RESPONSIVIDADE THEO RANKING/
+
+
+ /* RESPONSIVIDADE - PÓDIO E PERGAMINHOS */
+
+/* Tablets e celulares (até 768px) */
+@media (max-width: 768px) {
+
+  .scroll-container {
+    top: 8%;
+    width: 60vw;
+  }
+
+  .scroll-content {
+    width: 80%;
+  }
+
+  /* CONTAINER DO PÓDIO NO FINAL DA TELA */
+  .podium-container {
+    position: fixed;
+    bottom: 0;              
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center ;
+    z-index: 5;
+    background: transparent;
+  }
+
+  /* IMAGEM DO PÓDIO */
+  .podium-image {
+    width: 160%;
+    align-self: flex-end;
+  }
+
+  /* PERGAMINHOS DO TOP 3 ACIMA DO PÓDIO */
+  .top3-container {
+    position: absolute;
+    bottom: 150px; 
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 90%;
+    z-index: 10;
+  }
+
+  .scroll-1, .scroll-2, .scroll-3 {
+    position: relative;
+    width: 140px;
+    transform: none;
+    scale: 0.95;
+  }
+
+  /* CENTRAL MAIS ALTO */
+  .scroll-1 {
+    margin-bottom: 45px;
+    left: auto;
+  }
+
+  /* 1 e 2 nivelados */
+  .scroll-2 {
+    margin-bottom: 25px;
+    left: 8%;
+  }
+
+  .scroll-3 {
+    margin-bottom: 25px;
+    right: 8%;
+  }
+
+  /* LISTA DE JOGADORES ABAIXO DO PÓDIO */
+  .ranking-columns {
+    position: relative;
+    margin-top: 100vh; 
+    display: flex;
+    flex-direction: column ;
+    align-items: center;    
+    gap: 40px;             
+    width: 100%;
+    padding-bottom: 150px;
+    box-sizing: border-box;
+  }
+  
+  /* Coluna da esquerda */
+  .left-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center  ;    
+    width: 300px  ;          
+    margin: 0 auto ;         
+    gap: 15px ;
+    box-sizing: border-box;
+  }
+  
+  /* Coluna da direita */
+  .right-column {
+    transform: none ;
+    display: flex ;
+    flex-direction: column ;
+    align-items: center ;    
+    width: 300px ;           
+    margin: 0 auto ;         
+    gap: 15px ;
+    box-sizing: border-box;
+  }
+  
+  /* Pergaminhos */
+  .small-scroll {
+    width: 140px ;           
+    max-width: 100% ;
+    text-align: center ;
+    margin: 0 auto ;        
+    font-size: 0.8rem ;
+    padding: 6px ;
+  }
+
+
+
+  .small-scroll h3 {
+    font-size: 0.9rem ;
+  }
+
+  .crystals {
+    font-size: 0.75rem ;
+  }
+
+
+  .scroll-image {
+    width: 100% ;
+    height: auto ;
+  }
+
+  
+  
+  /* Permitir rolagem da tela */
+  #end-screen {
+    overflow-y: auto ;  /* ativa rolagem vertical */
+    overflow-x: hidden ;
+  }
+}
+
+
+/* ===============================
+   FASE OCULTA - DESAFIO SECRETO-ANA
+================================ */
+#fase-oculta {
+  position: fixed;
+  inset: 0;
+  background: url('fase_oculta_fundo_aqui.png') center/cover no-repeat; /*depois adcionar a imagem de fundo*/
+  color: #fff;
+  font-family: 'Luckiest Guy', cursive;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+#fase-oculta.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.oculta-container {
+  background: rgba(40, 10, 60, 0.85);
+  border: 3px solid #c084fc;
+  border-radius: 25px;
+  padding: 2rem 3rem;
+  box-shadow: 0 0 30px #a855f7, inset 0 0 10px #6d28d9;
+  max-width: 600px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.oculta-titulo {
+  font-size: 2rem;
+  color: #ffde59;
+  text-shadow: 0 0 15px #a855f7;
+  margin-bottom: 10px;
+}
+
+.oculta-texto {
+  font-size: 1rem;
+  color: #e9d5ff;
+  margin-bottom: 25px;
+}
+
+#pergunta-oculta {
+  font-size: 1.2rem;
+  color: #ffde59;
+  margin-bottom: 20px;
+}
+
+#opcoes-ocultas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+#opcoes-ocultas button {
+  background: linear-gradient(90deg, #6d28d9, #a855f7);
+  border: none;
+  border-radius: 20px;
+  padding: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+#opcoes-ocultas button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #a855f7;
+}
+
+#pontuacao-oculta {
+  margin-top: 15px;
+  color: #ffde59;
+  font-size: 1rem;
+}
+
+.oculta-btn {
+  background: linear-gradient(90deg, #a855f7, #8b5cf6);
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 10px 30px;
+  border-radius: 40px;
+  box-shadow: 0 0 15px #c084fc;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.oculta-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px #d8b4fe;
+}
+
+.hidden {
+  display: none !important;
 }

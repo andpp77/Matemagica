@@ -1745,7 +1745,7 @@
 #fase-oculta {
   position: fixed;
   inset: 0;
-  background: url('fase_oculta_fundo_aqui.png') center/cover no-repeat; /*depois adcionar a imagem de fundo*/
+  /*background: url('fase_oculta_fundo_aqui.png') center/cover no-repeat; /*depois adcionar a imagem de fundo*/
   color: #fff;
   font-family: 'Luckiest Guy', cursive;
   display: none;

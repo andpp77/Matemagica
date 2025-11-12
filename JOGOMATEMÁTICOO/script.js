@@ -16,15 +16,49 @@ let gameLevel = 1; // 1=fácil,2=médio,3=difícil
 let tentativasAtuais = 0;
 const maxTentativasPorPergunta = 2;
 let questoesSelecionadas = []; // vontará perguntas.js
-let perguntasOcultas = [
-  // Mantive a estrutura original de fase oculta; se preferir buscar bônus de perguntas.js,
-  // eu adapto — por enquanto usamos o array já presente no script anterior.
-  { pergunta: "Qual é o resultado de 12 × 3?", opcoes: ["24", "30", "36", "42"], correta: 2 },
-  { pergunta: "Quanto é 9²?", opcoes: ["18", "81", "99", "27"], correta: 1 },
-  { pergunta: "Resolva: (15 + 5) × 2", opcoes: ["20", "25", "30", "40"], correta: 3 },
-  { pergunta: "A raiz quadrada de 64 é...", opcoes: ["6", "8", "10", "7"], correta: 1 },
-  { pergunta: "Se x = 5, quanto vale 2x + 3?", opcoes: ["8", "10", "13", "15"], correta: 2 }
-];
+// ===============================
+// 🔮 FASE OCULTA - perguntas bônus
+// ===============================
+let perguntasOcultas = [];
+
+// Carrega perguntas de bônus do perguntas.js (com logs e proteção)
+function carregarPerguntasOcultas() {
+  perguntasOcultas = [];
+
+  if (typeof perguntas !== "undefined" && Array.isArray(perguntas)) {
+    // aceita tanto nivel: "bonus" quanto tipo: "bonus" (case-insensitive)
+    perguntasOcultas = perguntas.filter(q => {
+      const nivel = q && (q.nivel ?? q.tipo ?? "");
+      return String(nivel).toLowerCase() === "bonus";
+    });
+
+    console.log("carregarPerguntasOcultas -> total perguntas no arquivo:", perguntas.length);
+  } else {
+    console.warn("carregarPerguntasOcultas -> variável `perguntas` não encontrada ou inválida.");
+  }
+
+  // fallback padrão se não encontrou nenhuma bonus
+  if (!perguntasOcultas || perguntasOcultas.length === 0) {
+    perguntasOcultas = [
+      { pergunta: "Qual é o resultado de 12 × 3?", opcoes: ["24", "30", "36", "42"], correta: 2 },
+      { pergunta: "Quanto é 9²?", opcoes: ["18", "81", "99", "27"], correta: 1 },
+      { pergunta: "Resolva: (15 + 5) × 2", opcoes: ["20", "25", "30", "40"], correta: 3 },
+      { pergunta: "A raiz quadrada de 64 é...", opcoes: ["6", "8", "10", "7"], correta: 1 },
+      { pergunta: "Se x = 5, quanto vale 2x + 3?", opcoes: ["8", "10", "13", "15"], correta: 2 }
+    ];
+    console.warn("⚠️ Nenhuma pergunta bônus encontrada em perguntas.js. Usando fallback com", perguntasOcultas.length, "perguntas.");
+  } else {
+    console.log(`✨ ${perguntasOcultas.length} perguntas bônus carregadas da base principal.`);
+  }
+
+  // garante que índices e estruturas iniciais estejam ok
+  indiceOculto = 0;
+  scoreOculta = 0;
+}
+
+// chama automaticamente quando o DOM estiver pronto
+document.addEventListener("DOMContentLoaded", carregarPerguntasOcultas);
+
 let indiceOculto = 0;
 let scoreOculta = 0;
 
@@ -81,6 +115,85 @@ document.addEventListener('DOMContentLoaded', () => {
   scrollLeftBtn = document.getElementById('scroll-left');
   scrollRightBtn = document.getElementById('scroll-right');
 
+  // RASTRO MÁGICO DO CURSOR
+  document.addEventListener('mousemove', (e) => {
+    const star = document.createElement('span');
+    star.classList.add('magic-star');
+
+    star.style.left = `${e.clientX}px`;
+    star.style.top = `${e.clientY}px`;
+
+    const colors = ['#facc15', '#a78bfa', '#f9a8d4', '#3b82f6', '#fff'];
+    star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = Math.random() * 30 + 10;
+    star.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+    star.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+
+    document.body.appendChild(star);
+    setTimeout(() => star.remove(), 1000);
+  });
+  // Final rastro magico
+
+  //Estrelas da cruzeiro
+  const blinkContainer = document.getElementById("blink-stars");
+  const total = 50; //Quantidade de estrelas 
+  //Loop até 25
+  for (let i = 0; i < total; i++) {
+    const img = document.createElement("img");
+    img.src = "cruzeiro.png";
+    img.classList.add("blink-star");
+
+    // posição aleatória na tela inicial
+    img.style.top = `${Math.random() * 100}%`;
+    img.style.left = `${Math.random() * 100}%`;
+
+    // delays diferentes para não piscarem juntas
+    img.style.animationDelay = `${Math.random() * 2}s`;
+
+    blinkContainer.appendChild(img);
+  }
+
+  // Rolagem automática ao passar o mouse nas laterais
+  let scrollInterval;
+
+  function startScroll(direction) {
+    stopScroll();
+    if (!creditsScroll) return;
+    scrollInterval = setInterval(() => {
+      creditsScroll.scrollBy({ left: direction * 5, behavior: 'auto' });
+    }, 25); //Velocidade da rolagem de card's
+  }
+
+  function stopScroll() {
+    if (scrollInterval) clearInterval(scrollInterval);
+  }
+
+  // Hover nas hotzones
+  if (scrollLeftBtn) {
+    scrollLeftBtn.addEventListener('mouseenter', () => startScroll(-1));
+    scrollLeftBtn.addEventListener('mouseleave', stopScroll);
+  }
+
+  if (scrollRightBtn) {
+    scrollRightBtn.addEventListener('mouseenter', () => startScroll(1));
+    scrollRightBtn.addEventListener('mouseleave', stopScroll);
+  }
+
+  // Clique opcional para scroll rápido
+  if (scrollLeftBtn) {
+    scrollLeftBtn.addEventListener('click', () => {
+      if (creditsScroll) creditsScroll.scrollBy({ left: -200, behavior: 'smooth' });
+    });
+  }
+
+  if (scrollRightBtn) {
+    scrollRightBtn.addEventListener('click', () => {
+      if (creditsScroll) creditsScroll.scrollBy({ left: 200, behavior: 'smooth' });
+    });
+  }
+  
   // Mostra total de perguntas no layout
   if (totalQuestionsDisplay) totalQuestionsDisplay.textContent = String(totalQuestions);
 
@@ -89,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startScreen) startScreen.classList.add('hidden');
     if (nameScreen) nameScreen.classList.remove('hidden');
     // iniciar música de fundo se existir
-    try { if (backgroundMusic) { backgroundMusic.volume = 0.3; backgroundMusic.play().catch(()=>{}); } } catch {}
+    try { if (backgroundMusic) { backgroundMusic.volume = 0.3; backgroundMusic.play().catch(() => { }); } } catch { }
   });
 
   if (confirmNameBtn) {
@@ -119,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (homeModal) homeModal.classList.remove('hidden');
     });
   }
-  if (cancelHome) cancelHome.addEventListener('click', ()=> homeModal?.classList.add('hidden'));
+  if (cancelHome) cancelHome.addEventListener('click', () => homeModal?.classList.add('hidden'));
   if (confirmHome) {
     confirmHome.addEventListener('click', () => {
       // voltar para início mantendo telas intactas
@@ -143,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //Abrir modal (tela de Creditos)
-           // ===============================
+// ===============================
 // 🎖️ MODAL DE CRÉDITOS - RESTAURADO
 // ===============================
 
@@ -212,7 +325,7 @@ function resetForNewMatch() {
   tentativasAtuais = 0;
   questoesSelecionadas = [];
   iniciarPerguntas(); // já atualiza UI e gera a primeira questão
-  if (backgroundMusic) try { backgroundMusic.volume = 0.15; } catch {}
+  if (backgroundMusic) try { backgroundMusic.volume = 0.15; } catch { }
 }
 
 // inicia o jogo após confirmar nome
@@ -255,8 +368,8 @@ function gerarQuestoesFallback() {
     fallback.push({
       id: 1000 + i,
       nivel: "facil",
-      pergunta: `${i+1} + ${i+2} = ?`,
-      alternativas: { a: String(i+1 + i+2), b: String(i+2 + i+3), c: String(i+3 + i+4), d: String(i+4 + i+5) },
+      pergunta: `${i + 1} + ${i + 2} = ?`,
+      alternativas: { a: String(i + 1 + i + 2), b: String(i + 2 + i + 3), c: String(i + 3 + i + 4), d: String(i + 4 + i + 5) },
       correta: "a",
       pontos: 10
     });
@@ -311,7 +424,7 @@ function verificarResposta(chaveEscolhida, questao, botao) {
 
   if (isCorrect) {
     // som de acerto e pontos
-    try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(()=>{}); } } catch {}
+    try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(() => { }); } } catch { }
     const pontos = Number(questao.pontos || 10);
     score += pontos;
     tentativasAtuais = 0;
@@ -323,7 +436,7 @@ function verificarResposta(chaveEscolhida, questao, botao) {
     }, 600);
   } else {
     // som de erro
-    try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(()=>{}); } } catch {}
+    try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(() => { }); } } catch { }
 
     tentativasAtuais++;
     if (tentativasAtuais >= maxTentativasPorPergunta) {
@@ -368,6 +481,7 @@ function updateUI() {
   if (levelDisplay) levelDisplay.textContent = String(gameLevel);
   if (progressBar) updateProgressBar();
   if (finalScoreText) finalScoreText.textContent = `${score} de ${totalQuestions * 10}`; // aproximado se base de pontos 10/20
+
 }
 
 function updateProgressBar() {
@@ -379,26 +493,36 @@ function updateProgressBar() {
 // ===================== FINALIZAÇÃO DO JOGO E RANKING (SUPABASE) =====================
 
 async function finalizarJogo() {
-  // mostra tela de fim sem alterar outras telas que usam hidden (respeita estrutura)
-  if (gameContainer) { gameContainer.classList.add('hidden'); gameContainer.style.display = 'none'; }
-  if (endGameScreen) { endGameScreen.classList.remove('hidden'); endGameScreen.style.display = 'block'; }
+  console.log("🏁 Jogo finalizado. Pontuação:", score);
 
-  // atualiza score final no layout
-  if (finalScoreText) finalScoreText.textContent = `${score} de ${totalQuestions * 10}`;
+  // 🔹 Antes de exibir o ranking, verifica se o jogador desbloqueou a fase oculta
+  verificarFaseOculta(score);
 
-  // Determina nível textual para salvar
-  const nivelTexto = gameLevel === 1 ? "Fácil" : gameLevel === 2 ? "Médio" : "Difícil";
+  // Se a pontuação não for suficiente, a função acima já mostra o ranking.
+  // Então, se a fase oculta iniciar, o restante deste código não precisa rodar imediatamente.
+  if (score < 8) {
+    // mostra tela de fim sem alterar outras telas que usam hidden (respeita estrutura)
+    if (gameContainer) { gameContainer.classList.add('hidden'); gameContainer.style.display = 'none'; }
+    if (endGameScreen) { endGameScreen.classList.remove('hidden'); endGameScreen.style.display = 'block'; }
 
-  // salva no Supabase tabela 'ranking2'
-  try {
-    await salvarPontuacaoSupabase(playerName || "Anônimo", score, nivelTexto);
-  } catch (err) {
-    console.error("Erro ao salvar pontuação:", err);
+    // atualiza score final no layout
+    if (finalScoreText) finalScoreText.textContent = `${score} de ${totalQuestions * 10}`;
+
+    // Determina nível textual para salvar
+    const nivelTexto = gameLevel === 1 ? "Fácil" : gameLevel === 2 ? "Médio" : "Difícil";
+
+    // salva no Supabase tabela 'ranking2'
+    try {
+      await salvarPontuacaoSupabase(playerName || "Anônimo", score, nivelTexto);
+    } catch (err) {
+      console.error("Erro ao salvar pontuação:", err);
+    }
+
+    // Recarrega ranking para mostrar top 3 atualizados
+    await carregarRanking();
   }
-
-  // Recarrega ranking para mostrar top 3 atualizados
-  await carregarRanking();
 }
+
 
 async function salvarPontuacaoSupabase(nome, pontos, nivel) {
   if (!supabase) {
@@ -487,43 +611,97 @@ function iniciarFaseOculta() {
   if (faseOcultaEl) {
     faseOcultaEl.classList.remove("hidden");
     faseOcultaEl.style.display = "flex";
-    setTimeout(()=> faseOcultaEl.classList.add("active"), 50);
+    setTimeout(() => faseOcultaEl.classList.add("active"), 50);
   }
   indiceOculto = 0;
   scoreOculta = 0;
   mostrarPerguntaOculta();
 }
 
+// ===================== FASE OCULTA (revisada) =====================
 function mostrarPerguntaOculta() {
   const perguntaOcultaEl = document.getElementById("pergunta-oculta");
   const opcoesOcultasEl = document.getElementById("opcoes-ocultas");
   const scoreOcultaTexto = document.getElementById("score-oculta");
-  if (!perguntaOcultaEl || !opcoesOcultasEl) return;
+
+  // segurança: garante que perguntasOcultas seja array
+  if (!Array.isArray(perguntasOcultas)) {
+    console.error("mostrarPerguntaOculta -> perguntasOcultas não é um array:", perguntasOcultas);
+    perguntasOcultas = [];
+  }
 
   const atual = perguntasOcultas[indiceOculto];
+
+  // se não houver pergunta (fim do array), chama finalizar
   if (!atual) {
-    // fim fase oculta
-    const btnFinalizar = document.getElementById("btn-finalizar-oculta");
-    if (btnFinalizar) btnFinalizar.classList.remove("hidden");
+    console.log("mostrarPerguntaOculta -> nenhuma pergunta atual (índice", indiceOculto, "). Finalizando fase oculta.");
+    finalizarFaseOculta();
     return;
   }
 
-  perguntaOcultaEl.textContent = atual.pergunta;
+  // limpa áreas e escreve a pergunta
+  if (!perguntaOcultaEl || !opcoesOcultasEl) {
+    console.error("mostrarPerguntaOculta -> elementos DOM faltando:", { perguntaOcultaEl, opcoesOcultasEl });
+    return;
+  }
+
+  perguntaOcultaEl.textContent = atual.pergunta ?? "Pergunta sem texto";
+
   opcoesOcultasEl.innerHTML = "";
-  atual.opcoes.forEach((op, i) => {
-    const b = document.createElement('button');
-    b.textContent = op;
-    b.className = 'option-btn bg-blue-200 hover:bg-blue-300 p-3 rounded-lg transition';
-    b.addEventListener('click', ()=> {
-      if (i === atual.correta) {
+
+  // Determina opções: aceita opcoes (array), alternativas (obj ou array)
+  let opcoesArray = null;
+  if (Array.isArray(atual.opcoes)) {
+    opcoesArray = atual.opcoes;
+  } else if (Array.isArray(atual.alternativas)) {
+    opcoesArray = atual.alternativas;
+  } else if (atual.alternativas && typeof atual.alternativas === "object") {
+    // converte { a: "...", b: "..."} em array [valorA, valorB,...] mantendo ordem alfabética
+    opcoesArray = Object.keys(atual.alternativas)
+      .sort()
+      .map(k => atual.alternativas[k]);
+  }
+
+  // Se ainda não encontrou opções, tenta extrair de outras chaves comuns
+  if (!Array.isArray(opcoesArray) || opcoesArray.length === 0) {
+    console.warn("mostrarPerguntaOculta -> alternativas não encontradas no formato esperado para a pergunta:", atual);
+    opcoesArray = ["Opção A", "Opção B", "Opção C", "Opção D"];
+  }
+
+  // Normaliza índice da resposta correta: pode vir como número ou letra
+  let corretaIndex = null;
+  if (typeof atual.correta === "number") {
+    corretaIndex = atual.correta;
+  } else if (typeof atual.correta === "string") {
+    // se for 'a','b','c' -> converte para 0,1,2
+    const s = atual.correta.trim().toLowerCase();
+    if (s.match(/^[abcd]$/)) {
+      corretaIndex = "abcd".indexOf(s);
+    } else if (!isNaN(Number(s))) {
+      corretaIndex = Number(s);
+    }
+  }
+
+  // Gera botões para cada opção
+  opcoesArray.forEach((texto, i) => {
+    const b = document.createElement("button");
+    b.className = "option-btn bg-blue-200 hover:bg-blue-300 p-3 rounded-lg transition";
+    b.type = "button";
+    b.textContent = String(texto);
+    b.addEventListener("click", () => {
+      // toca sons e contabiliza
+      if (typeof corretaIndex === "number" && i === corretaIndex) {
         scoreOculta++;
-        try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(()=>{}); } } catch {}
+        try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(() => { }); } } catch { }
       } else {
-        try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(()=>{}); } } catch {}
+        try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(() => { }); } } catch { }
       }
+
       indiceOculto++;
       if (scoreOcultaTexto) scoreOcultaTexto.textContent = `${scoreOculta} / ${perguntasOcultas.length}`;
-      setTimeout(mostrarPerguntaOculta, 600);
+
+      // aguarda um pouco e mostra próxima pergunta (ou finalizar)
+      setTimeout(mostrarPerguntaOculta, 500);
     });
     opcoesOcultasEl.appendChild(b);
   });
@@ -531,54 +709,136 @@ function mostrarPerguntaOculta() {
   if (scoreOcultaTexto) scoreOcultaTexto.textContent = `${scoreOculta} / ${perguntasOcultas.length}`;
 }
 
-// Função que verifica condição para liberar fase oculta (pode ser chamada no final)
-function verificarFaseOcultaDesbloqueio(pontuacaoFinal) {
-  // Ajuste: desbloqueia quando pontuação >= X (você definia 5 no script antigo) — aqui uso >= totalQuestions*0.5 por exemplo
-  if (pontuacaoFinal >= Math.ceil(totalQuestions * 0.5) ) {
+
+function verificarFaseOculta(pontuacaoFinal) {
+  // 🔸 Pontuação mínima necessária para desbloquear a fase oculta
+  // Ajuste esse valor se quiser mudar a dificuldade de desbloqueio
+  const pontosMinimosParaFaseOculta = 80;
+
+  console.log(`Pontuação final: ${pontuacaoFinal} | Mínimo necessário: ${pontosMinimosParaFaseOculta}`);
+
+  // Se o jogador atingiu ou superou a pontuação mínima
+  if (pontuacaoFinal >= pontosMinimosParaFaseOculta) {
+    console.log("✨ Fase oculta desbloqueada! ✨");
+
+    // Esconde o ranking antes de iniciar a fase oculta
+    if (endGameScreen) endGameScreen.style.display = 'none';
+
+    // Inicia a fase oculta e mostra a primeira pergunta
     iniciarFaseOculta();
-  } else {
-    // mantém tela final
-    const faseOcultaEl = document.getElementById("fase-oculta");
-    if (faseOcultaEl) faseOcultaEl.classList.add("hidden");
+    mostrarPerguntaOculta();
+
+    // (opcional) Mensagem no console para debug
+    console.log("🌙 Fase oculta iniciada com sucesso!");
+  }
+  // Caso o jogador não tenha pontos suficientes
+  else {
+    console.log("Pontuação insuficiente. Fase oculta não desbloqueada.");
+
+    // Mostra o ranking normalmente
     if (endGameScreen) endGameScreen.classList.remove("hidden");
+    endGameScreen.style.display = "flex";
+
+    // Atualiza o texto da pontuação final (para clareza visual)
+    const finalScoreText = document.getElementById("final-score-text");
+    if (finalScoreText) {
+      finalScoreText.textContent = `${pontuacaoFinal} pontos — tente atingir ${pontosMinimosParaFaseOculta} para desbloquear a Fase Oculta!`;
+    }
   }
 }
 
-// ===================== UTILITÁRIOS =====================
-/* Exemplo de atalho para debug:
-   window.__game = { iniciarPerguntas, mostrarPergunta, salvarPontuacaoSupabase, carregarRanking, finalizarJogo };
-*/
+// ===============================
+// 🌌 FINAL DA FASE OCULTA + SALVAR NO SUPABASE
+// ===============================
+function finalizarFaseOculta() {
+  console.log("🏁 Finalizando fase oculta...");
+
+  const perguntaOcultaEl = document.getElementById("pergunta-oculta");
+  const opcoesOcultasEl = document.getElementById("opcoes-ocultas");
+  const btnFinalizarOculta = document.getElementById("btn-finalizar-oculta");
+  const faseOcultaEl = document.getElementById("fase-oculta");
+
+  if (!btnFinalizarOculta) {
+    console.error("❌ Botão de finalizar fase oculta não encontrado!");
+    return;
+  }
+
+  // Atualiza a mensagem final
+  if (perguntaOcultaEl) perguntaOcultaEl.textContent = "✨ Você concluiu a fase oculta! ✨";
+  if (opcoesOcultasEl) opcoesOcultasEl.innerHTML = "";
+
+  // Mostra o botão e adiciona o evento de clique
+  btnFinalizarOculta.classList.remove("hidden");
+  btnFinalizarOculta.disabled = false; // garante que está clicável
+
+  btnFinalizarOculta.onclick = async () => {
+    console.log("🎯 Clique detectado no botão Finalizar Desafio Oculto");
+    const pontuacaoTotal = score + scoreOculta;
+    const endScreen = document.getElementById("end-screen");
+
+    // Esconde a fase oculta
+    faseOcultaEl?.classList.add("hidden");
+
+    // Mostra tela de ranking
+    if (endScreen) {
+      endScreen.classList.remove("hidden");
+      endScreen.style.display = "flex";
+    }
+
+    // Atualiza texto da pontuação final
+    const finalScoreText = document.getElementById("final-score-text");
+    if (finalScoreText)
+      finalScoreText.textContent = `${pontuacaoTotal} pontos totais`;
+
+    // ===============================
+    // 💾 SALVAR NO SUPABASE
+    // ===============================
+    try {
+      if (!supabase) {
+        console.error("❌ Supabase não inicializado!");
+        return;
+      }
+
+      const { error } = await supabase.from("ranking2").insert([
+        {
+          nome: playerName,
+          pontos: pontuacaoTotal,
+          nivel: obterNomeDoNivel
+            ? obterNomeDoNivel(gameLevel)
+            : gameLevel === 1
+              ? "Fácil"
+              : gameLevel === 2
+                ? "Médio"
+                : "Difícil",
+          data: new Date().toISOString(),
+        },
+      ]);
+
+      if (error) {
+        console.error("Erro ao salvar no Supabase:", error);
+      } else {
+        console.log("✅ Pontuação salva no Supabase com sucesso!");
+      }
+    } catch (err) {
+      console.error("Erro inesperado ao salvar no Supabase:", err);
+    }
+
+    // Recarrega ranking
+    await carregarRanking();
+  };
+}
+// ===============================
+// Utilitário: converte número de nível para texto
+// ===============================
+function obterNomeDoNivel(nivel) {
+  switch (Number(nivel)) {
+    case 1: return "Fácil";
+    case 2: return "Médio";
+    case 3: return "Difícil";
+    default: return "Nível " + nivel;
+  }
+}
+
 window.__game = window.__game || {};
 Object.assign(window.__game, { iniciarPerguntas, mostrarPergunta, salvarPontuacaoSupabase, carregarRanking, finalizarJogo });
 
-// ===================== NOTAS IMPORTANTES =====================
-/*
-1) A tabela no Supabase deve se chamar `ranking2` com colunas: id (pk), nome (text), pontos (integer), nivel (text), data (timestamp default now()).
-   Se o nome de alguma coluna for diferente, adapte salvarPontuacaoSupabase().
-
-2) O arquivo perguntas.js precisa estar carregado antes deste script (coloque <script src="perguntas.js"></script> no index.html antes de <script src="script.js"></script>).
-   O código espera que exista a variável global `perguntas` (array), com objetos que contenham:
-     - pergunta (string)
-     - alternativas (objeto { a: "...", b: "..." } )  ou opcoes (array)
-     - correta (string "a"/"b"/"c"/"d" ou índice numérico)
-     - pontos (number)
-
-3) Mantive a lógica da fase oculta separada para não mexer na sua implementação original.
-
-4) Se quiser que eu substitua as perguntasOcultas pelo subset 'bonus' do perguntas.js (caso exista uma propriedade tipo:'bonus' ou nivel:'bonus'),
-   eu adapto facilmente para puxar dinamicamente desses dados.
-
-5) Teste:
-   - Abra o devtools (F12) e verifique console para erros.
-   - Verifique se o Supabase responde — se houver erro 401, cheque a anon key.
-   - Se o SDK do Supabase não estiver incluído no seu index.html, adicione:
-     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-     antes de carregar este script.
-
-Se quiser, eu já adapto para:
-- usar variáveis de ambiente via Vercel (se preferir mover a chave para lá),
-- puxar perguntas bônus do `perguntas.js`,
-- ou ajustar exibição do ranking (tabela completa) além do top3.
-
-Quer que eu já modifique as `perguntasOcultas` para vir do `perguntas.js` (procura por `nivel: "bonus"`), ou deixo como está? 
-(Se preferir, eu já faço essa adaptação também — mas não pergunto nada se você não quiser alterar agora.)*/

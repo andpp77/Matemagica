@@ -1738,6 +1738,28 @@
   }
 }
 
+/* Feedback visual das respostas */
+.option-btn {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.option-btn.btn-correto {
+  background-color: #16a34a !important; /* Verde */
+  color: white;
+  transform: scale(1.05);
+}
+
+.option-btn.btn-errado {
+  background-color: #dc2626 !important; /* Vermelho */
+  color: white;
+  transform: scale(0.98);
+}
+
+.option-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 
 /* ===============================
    FASE OCULTA - DESAFIO SECRETO-ANA

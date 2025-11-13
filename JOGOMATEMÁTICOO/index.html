@@ -35,6 +35,30 @@
 
   <!-- Tela de identificação -->
   <div id="name-screen" class="hidden">
+    <!-- 🔹 Botão de Administração -->
+<button id="admin-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-4">
+  Painel Admin
+</button>
+
+<!-- 🔹 Modal de Senha -->
+<div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 text-center shadow-xl max-w-sm w-full">
+    <h2 class="text-xl font-bold mb-3">Acesso Administrativo</h2>
+    <p class="mb-4">Digite a senha para apagar todo o ranking:</p>
+    <input
+      type="password"
+      id="admin-password"
+      placeholder="Senha"
+      class="border border-gray-400 rounded px-3 py-2 w-full text-center mb-4"
+    />
+    <div class="flex justify-center gap-3">
+      <button id="cancel-admin" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancelar</button>
+      <button id="confirm-admin" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Confirmar</button>
+    </div>
+    <p id="admin-feedback" class="text-sm mt-3 text-gray-600"></p>
+  </div>
+</div>
+
     <!-- Botão Voltar -->
     <button id="back-btn" class="back-btn">
         <img src="coelho.png" alt="Voltar" class="icon-magico">
@@ -176,7 +200,7 @@
         </section>
 
         <div id="score-display">
-            Pontuação: <span id="score">0</span> / <span id="total-questions">100</span><br>
+            Pontuação: <span id="score">0</span> 
         </div>
         </div>
     </div>

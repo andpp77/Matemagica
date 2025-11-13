@@ -22,36 +22,41 @@ let questoesSelecionadas = []; // vontará perguntas.js
 let perguntasOcultas = [];
 
 // Carrega perguntas de bônus do perguntas.js (com logs e proteção)
+// ===============================
+// 🔮 FASE OCULTA - CARREGAMENTO ALEATÓRIO
+// ===============================
 function carregarPerguntasOcultas() {
   perguntasOcultas = [];
 
   if (typeof perguntas !== "undefined" && Array.isArray(perguntas)) {
-    // aceita tanto nivel: "bonus" quanto tipo: "bonus" (case-insensitive)
-    perguntasOcultas = perguntas.filter(q => {
+    // filtra todas as perguntas com nível/tipo "bonus"
+    const bonusQuestions = perguntas.filter(q => {
       const nivel = q && (q.nivel ?? q.tipo ?? "");
       return String(nivel).toLowerCase() === "bonus";
     });
 
-    console.log("carregarPerguntasOcultas -> total perguntas no arquivo:", perguntas.length);
+    if (bonusQuestions.length > 0) {
+      // 🌟 escolhe aleatoriamente UMA pergunta bônus
+      const sorteada = bonusQuestions[Math.floor(Math.random() * bonusQuestions.length)];
+      perguntasOcultas = [sorteada];
+      console.log("🔮 Fase oculta sorteada:", sorteada.pergunta);
+    } else {
+      console.warn("⚠️ Nenhuma pergunta bônus encontrada no perguntas.js!");
+    }
   } else {
-    console.warn("carregarPerguntasOcultas -> variável `perguntas` não encontrada ou inválida.");
-  }
-
-  // fallback padrão se não encontrou nenhuma bonus
-  if (!perguntasOcultas || perguntasOcultas.length === 0) {
+    console.warn("⚠️ Variável `perguntas` não encontrada. Usando fallback.");
     perguntasOcultas = [
-      { pergunta: "Qual é o resultado de 12 × 3?", opcoes: ["24", "30", "36", "42"], correta: 2 },
-      { pergunta: "Quanto é 9²?", opcoes: ["18", "81", "99", "27"], correta: 1 },
-      { pergunta: "Resolva: (15 + 5) × 2", opcoes: ["20", "25", "30", "40"], correta: 3 },
-      { pergunta: "A raiz quadrada de 64 é...", opcoes: ["6", "8", "10", "7"], correta: 1 },
-      { pergunta: "Se x = 5, quanto vale 2x + 3?", opcoes: ["8", "10", "13", "15"], correta: 2 }
+      {
+        pergunta: "Desafio final! Quanto é (9 + 3) × 2?",
+        opcoes: ["20", "22", "24", "26"],
+        correta: 2,
+        pontos: 50,
+        dica: "Multiplique o resultado da soma por 2. 😉",
+      },
     ];
-    console.warn("⚠️ Nenhuma pergunta bônus encontrada em perguntas.js. Usando fallback com", perguntasOcultas.length, "perguntas.");
-  } else {
-    console.log(`✨ ${perguntasOcultas.length} perguntas bônus carregadas da base principal.`);
   }
 
-  // garante que índices e estruturas iniciais estejam ok
+  // Reinicia controle de fase oculta
   indiceOculto = 0;
   scoreOculta = 0;
 }
@@ -114,6 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
   creditsScroll = document.getElementById('credits-scroll');
   scrollLeftBtn = document.getElementById('scroll-left');
   scrollRightBtn = document.getElementById('scroll-right');
+
+
+
 
   // RASTRO MÁGICO DO CURSOR
   document.addEventListener('mousemove', (e) => {
@@ -418,48 +426,93 @@ function mostrarPergunta() {
 
 function verificarResposta(chaveEscolhida, questao, botao) {
   const correta = String(questao.correta);
-  // Se alternativas eram array com índices numéricos (0,1,2,3), normalize
-  // Algumas perguntas usam "b", "c" etc — tratamos por igualdade direta
   const isCorrect = (chaveEscolhida === correta) || (Number(chaveEscolhida) === Number(correta));
 
+  const bubble = document.getElementById("mascot-game-bubble");
+  const container = document.getElementById("mascote-game-container");
+
+  // 🔹 Função auxiliar para o mascote "falar"
+  function mascoteFala(mensagem, tipo = "neutro", duracao = 3000) {
+    if (!bubble || !container) return;
+    bubble.textContent = mensagem;
+    bubble.classList.remove("correct", "wrong", "show");
+    if (tipo === "acerto") bubble.classList.add("correct");
+    if (tipo === "erro") bubble.classList.add("wrong");
+    bubble.classList.add("show");
+    container.setAttribute("aria-hidden", "false");
+
+    clearTimeout(bubble._timeoutId);
+    bubble._timeoutId = setTimeout(() => {
+      bubble.classList.remove("show", "correct", "wrong");
+      container.setAttribute("aria-hidden", "true");
+    }, duracao);
+  }
+
+  // 🔸 Desativa todos os botões enquanto processa a resposta
+  const todosBotoes = document.querySelectorAll(".option-btn");
+  todosBotoes.forEach(btn => btn.disabled = true);
+
   if (isCorrect) {
-    // som de acerto e pontos
-    try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(() => { }); } } catch { }
+    // ✅ ACERTOU
+    try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(() => {}); } } catch {}
     const pontos = Number(questao.pontos || 10);
     score += pontos;
     tentativasAtuais = 0;
-    questionIndex++;
-    updateUI();
+
+    // botão fica verde
+    botao.classList.add("btn-correto");
+    mascoteFala("🎉 Parabéns, você acertou!", "acerto", 2000);
+
     setTimeout(() => {
+      questionIndex++;
+      updateUI();
       feedbackMessage && (feedbackMessage.textContent = "");
       mostrarPergunta();
-    }, 600);
-  } else {
-    // som de erro
-    try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(() => { }); } } catch { }
+    }, 1200);
 
+  } else {
+    // ❌ ERROU
+    try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(() => {}); } } catch {}
     tentativasAtuais++;
-    if (tentativasAtuais >= maxTentativasPorPergunta) {
-      // perde a questão e passa pra próxima
-      tentativasAtuais = 0;
-      questionIndex++;
-      // opcional: mostrar qual era a resposta correta
+
+    // botão fica vermelho
+    botao.classList.add("btn-errado");
+
+    if (tentativasAtuais === 1) {
+      // 💬 Se tiver dica, mostra no balão do mascote
+      if (questao.dica && questao.dica.trim() !== "") {
+        mascoteFala(`❌ Errou! 💡 Dica: ${questao.dica}`, "erro", 4000);
+      } else {
+        mascoteFala("❌ Errou, tente de novo!", "erro", 2000);
+      }
+
+      feedbackMessage && (feedbackMessage.textContent = "Ops! Tente novamente ✨");
+
+      // reativa os botões após um tempinho
+      setTimeout(() => {
+        todosBotoes.forEach(btn => btn.disabled = false);
+        botao.classList.remove("btn-errado");
+      }, 2000);
+    } else {
+      // Segunda tentativa: mostra resposta correta
+      mascoteFala("💀 Segunda tentativa! Você errou esta.", "erro", 2200);
       feedbackMessage && (feedbackMessage.textContent = `Resposta correta: ${formatRespostaCorreta(questao)}. Avançando...`);
+      tentativasAtuais = 0;
+
+      // mostra a resposta correta em verde
+      todosBotoes.forEach((b) => {
+        const texto = b.textContent.trim();
+        if (texto === formatRespostaCorreta(questao)) b.classList.add("btn-correto");
+      });
+
       setTimeout(() => {
         feedbackMessage && (feedbackMessage.textContent = "");
         mostrarPergunta();
-      }, 900);
-    } else {
-      // ainda tem chance: avisa e deixa o player tentar de novo
-      feedbackMessage && (feedbackMessage.textContent = "Ops! Tente novamente ✨");
-      // pequeno destaque visual no botão errado
-      if (botao) {
-        botao.classList.add('incorrect-temp');
-        setTimeout(() => botao.classList.remove('incorrect-temp'), 700);
-      }
+      }, 2200);
     }
   }
 }
+
 
 function formatRespostaCorreta(questao) {
   if (!questao) return "-";
@@ -624,90 +677,56 @@ function mostrarPerguntaOculta() {
   const opcoesOcultasEl = document.getElementById("opcoes-ocultas");
   const scoreOcultaTexto = document.getElementById("score-oculta");
 
-  // segurança: garante que perguntasOcultas seja array
-  if (!Array.isArray(perguntasOcultas)) {
-    console.error("mostrarPerguntaOculta -> perguntasOcultas não é um array:", perguntasOcultas);
-    perguntasOcultas = [];
-  }
-
   const atual = perguntasOcultas[indiceOculto];
-
-  // se não houver pergunta (fim do array), chama finalizar
   if (!atual) {
-    console.log("mostrarPerguntaOculta -> nenhuma pergunta atual (índice", indiceOculto, "). Finalizando fase oculta.");
     finalizarFaseOculta();
     return;
   }
 
-  // limpa áreas e escreve a pergunta
-  if (!perguntaOcultaEl || !opcoesOcultasEl) {
-    console.error("mostrarPerguntaOculta -> elementos DOM faltando:", { perguntaOcultaEl, opcoesOcultasEl });
-    return;
-  }
-
-  perguntaOcultaEl.textContent = atual.pergunta ?? "Pergunta sem texto";
-
+  perguntaOcultaEl.textContent = atual.pergunta ?? "Pergunta bônus!";
   opcoesOcultasEl.innerHTML = "";
 
-  // Determina opções: aceita opcoes (array), alternativas (obj ou array)
-  let opcoesArray = null;
-  if (Array.isArray(atual.opcoes)) {
-    opcoesArray = atual.opcoes;
-  } else if (Array.isArray(atual.alternativas)) {
-    opcoesArray = atual.alternativas;
-  } else if (atual.alternativas && typeof atual.alternativas === "object") {
-    // converte { a: "...", b: "..."} em array [valorA, valorB,...] mantendo ordem alfabética
-    opcoesArray = Object.keys(atual.alternativas)
-      .sort()
-      .map(k => atual.alternativas[k]);
-  }
+  let opcoesArray = Array.isArray(atual.opcoes)
+    ? atual.opcoes
+    : Array.isArray(atual.alternativas)
+    ? atual.alternativas
+    : Object.values(atual.alternativas || {});
 
-  // Se ainda não encontrou opções, tenta extrair de outras chaves comuns
-  if (!Array.isArray(opcoesArray) || opcoesArray.length === 0) {
-    console.warn("mostrarPerguntaOculta -> alternativas não encontradas no formato esperado para a pergunta:", atual);
-    opcoesArray = ["Opção A", "Opção B", "Opção C", "Opção D"];
-  }
+  const corretaIndex = typeof atual.correta === "number"
+    ? atual.correta
+    : "abcd".indexOf(String(atual.correta).toLowerCase());
 
-  // Normaliza índice da resposta correta: pode vir como número ou letra
-  let corretaIndex = null;
-  if (typeof atual.correta === "number") {
-    corretaIndex = atual.correta;
-  } else if (typeof atual.correta === "string") {
-    // se for 'a','b','c' -> converte para 0,1,2
-    const s = atual.correta.trim().toLowerCase();
-    if (s.match(/^[abcd]$/)) {
-      corretaIndex = "abcd".indexOf(s);
-    } else if (!isNaN(Number(s))) {
-      corretaIndex = Number(s);
-    }
-  }
-
-  // Gera botões para cada opção
   opcoesArray.forEach((texto, i) => {
-    const b = document.createElement("button");
-    b.className = "option-btn bg-blue-200 hover:bg-blue-300 p-3 rounded-lg transition";
-    b.type = "button";
-    b.textContent = String(texto);
-    b.addEventListener("click", () => {
-      // toca sons e contabiliza
-      if (typeof corretaIndex === "number" && i === corretaIndex) {
-        scoreOculta++;
-        try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(() => { }); } } catch { }
+    const btn = document.createElement("button");
+    btn.className = "option-btn bg-blue-200 hover:bg-blue-300 p-3 rounded-lg transition";
+    btn.textContent = texto;
+    btn.onclick = () => {
+      const acertou = i === corretaIndex;
+
+      if (acertou) {
+        scoreOculta += Number(atual.pontos || 0);
+        try { soundCorrect?.play(); } catch {}
       } else {
-        try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(() => { }); } } catch { }
+        try { soundWrong?.play(); } catch {}
+      }
+
+      // ✅ Mostra dica se errar
+      if (!acertou && atual.dica) {
+        const mascoteBubble = document.getElementById("mascot-game-bubble");
+        mascoteBubble.textContent = `💡 Dica bônus: ${atual.dica}`;
+        mascoteBubble.classList.add("show", "wrong");
+        setTimeout(() => mascoteBubble.classList.remove("show", "wrong"), 4000);
       }
 
       indiceOculto++;
-      if (scoreOcultaTexto) scoreOcultaTexto.textContent = `${scoreOculta} / ${perguntasOcultas.length}`;
-
-      // aguarda um pouco e mostra próxima pergunta (ou finalizar)
-      setTimeout(mostrarPerguntaOculta, 500);
-    });
-    opcoesOcultasEl.appendChild(b);
+      setTimeout(finalizarFaseOculta, 1000);
+    };
+    opcoesOcultasEl.appendChild(btn);
   });
 
-  if (scoreOcultaTexto) scoreOcultaTexto.textContent = `${scoreOculta} / ${perguntasOcultas.length}`;
+  scoreOcultaTexto.textContent = `${scoreOculta} pts`;
 }
+
 
 
 function verificarFaseOculta(pontuacaoFinal) {

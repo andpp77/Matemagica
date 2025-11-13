@@ -436,7 +436,7 @@ const perguntas = [
     "tipo": "texto",
     "pergunta": "Um maguinho tinha 4 pedras mágicas e perdeu 2. Quantas sobraram?",
     "alternativas": { "a": "1", "b": "2", "c": "3", "d": "4" },
-    "correta": "c",
+    "correta": "b",
     "dica": "Retire as perdidas do total inicial e conte as que restaram.",
     "pontos": 10.0
   },

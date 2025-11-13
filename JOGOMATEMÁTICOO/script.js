@@ -861,3 +861,67 @@ function obterNomeDoNivel(nivel) {
 window.__game = window.__game || {};
 Object.assign(window.__game, { iniciarPerguntas, mostrarPergunta, salvarPontuacaoSupabase, carregarRanking, finalizarJogo });
 
+// ===============================
+// 🧹 PAINEL ADMINISTRATIVO - LIMPAR BANCO DE DADOS
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+  const adminBtn = document.getElementById("admin-btn");
+  const adminModal = document.getElementById("admin-modal");
+  const cancelAdmin = document.getElementById("cancel-admin");
+  const confirmAdmin = document.getElementById("confirm-admin");
+  const adminPasswordInput = document.getElementById("admin-password");
+  const adminFeedback = document.getElementById("admin-feedback");
+
+  // senha secreta (pode alterar)
+  const SENHA_ADMIN = "12345";
+
+  if (!adminBtn) return;
+
+  // abrir modal
+  adminBtn.addEventListener("click", () => {
+    adminModal.classList.remove("hidden");
+    adminModal.classList.add("flex");
+    adminFeedback.textContent = "";
+    adminPasswordInput.value = "";
+  });
+
+  // cancelar
+  cancelAdmin.addEventListener("click", () => {
+    adminModal.classList.add("hidden");
+  });
+
+  // confirmar
+  confirmAdmin.addEventListener("click", async () => {
+    const senha = adminPasswordInput.value.trim();
+    if (senha !== SENHA_ADMIN) {
+      adminFeedback.textContent = "❌ Senha incorreta.";
+      adminFeedback.classList.add("text-red-600");
+      return;
+    }
+
+    if (!supabase) {
+      adminFeedback.textContent = "⚠️ Erro: Supabase não conectado.";
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("ranking2").delete().neq("id", 0);
+      if (error) throw error;
+
+      adminFeedback.textContent = "✅ Todos os dados foram apagados com sucesso!";
+      adminFeedback.classList.remove("text-red-600");
+      adminFeedback.classList.add("text-green-600");
+
+      // fecha modal após 2 segundos
+      setTimeout(() => {
+        adminModal.classList.add("hidden");
+        carregarRanking(); // atualiza ranking vazio
+      }, 2000);
+    } catch (err) {
+      console.error("Erro ao limpar ranking:", err);
+      adminFeedback.textContent = "❌ Erro ao apagar dados.";
+      adminFeedback.classList.add("text-red-600");
+    }
+  });
+});
+

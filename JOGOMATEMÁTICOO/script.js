@@ -480,25 +480,37 @@ function iniciarJogo() {
 
 // Seleção de perguntas baseadas no nível
 function iniciarPerguntas() {
-  // Verifica se perguntas (perguntas.js) está carregado
   if (typeof perguntas === 'undefined' || !Array.isArray(perguntas)) {
-    console.error("Arquivo perguntas.js não carregado ou variável `perguntas` não existe.");
-    // fallback: gera problemas simples (para evitar quebra)
+    console.error("perguntas.js não carregado.");
     questoesSelecionadas = gerarQuestoesFallback();
   } else {
-    const nivelStr = gameLevel === 1 ? "facil" : gameLevel === 2 ? "medio" : "dificil";
-    const pool = perguntas.filter(q => String(q.nivel).toLowerCase() === nivelStr);
-    // embaralha e seleciona totalQuestions
-    questoesSelecionadas = pool.sort(() => Math.random() - 0.5).slice(0, totalQuestions);
-    // se pool for menor que totalQuestions, complementa com outras perguntas disponíveis
-    if (questoesSelecionadas.length < totalQuestions) {
-      const complement = perguntas.filter(q => !questoesSelecionadas.includes(q)).sort(() => Math.random() - 0.5).slice(0, totalQuestions - questoesSelecionadas.length);
-      questoesSelecionadas = questoesSelecionadas.concat(complement);
-    }
+    // separa por nível (fazendo lowercase para evitar erros)
+    const faceis = perguntas.filter(q => String(q.nivel).toLowerCase() === "facil");
+    const medias  = perguntas.filter(q => String(q.nivel).toLowerCase() === "medio");
+    const dificeis = perguntas.filter(q => String(q.nivel).toLowerCase() === "dificil");
+
+    // embaralhar função
+    const shuffle = arr => arr.sort(() => Math.random() - 0.5);
+
+    // selecionar quantidade exata
+    const selecionadasFaceis = shuffle(faceis).slice(0, 4);
+    const selecionadasMedias = shuffle(medias).slice(0, 3);
+    const selecionadasDificeis = shuffle(dificeis).slice(0, 3);
+
+    // juntar 10 perguntas
+    questoesSelecionadas = [
+      ...selecionadasFaceis,
+      ...selecionadasMedias,
+      ...selecionadasDificeis
+    ];
+
+    console.log("🎯 Perguntas selecionadas:", questoesSelecionadas);
   }
+
   questionIndex = 0;
   tentativasAtuais = 0;
   score = 0;
+
   updateUI();
   mostrarPergunta();
 }

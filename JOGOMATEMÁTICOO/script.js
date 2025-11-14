@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (creditsScroll) creditsScroll.scrollBy({ left: 200, behavior: 'smooth' });
     });
   }
-  
+
   // Mostra total de perguntas no layout
   if (totalQuestionsDisplay) totalQuestionsDisplay.textContent = String(totalQuestions);
 
@@ -228,34 +228,164 @@ document.addEventListener('DOMContentLoaded', () => {
       playerName = v;
       // atualiza título do jogo se houver
       const gameTitle = document.getElementById('game-title');
-      if (gameTitle) gameTitle.textContent = `Boa sorte, ${playerName}! 🪄✨`;
+      if (gameTitle) gameTitle.textContent = `Boa sorte, ${playerName}! 🪄`;
+
+      mostrarJogo();
 
       // Inicializa jogo
       iniciarJogo();
     });
   }
 
+  // Confirmação para voltar à home - //ULTIMA ALTERAÇÃO THEO
   if (gameHomeBtn) {
     gameHomeBtn.addEventListener('click', () => {
-      if (homeModal) homeModal.classList.remove('hidden');
-    });
-  }
-  if (cancelHome) cancelHome.addEventListener('click', () => homeModal?.classList.add('hidden'));
-  if (confirmHome) {
-    confirmHome.addEventListener('click', () => {
-      // voltar para início mantendo telas intactas
-      if (gameContainer) { gameContainer.classList.add('hidden'); gameContainer.style.display = 'none'; }
-      if (startScreen) { startScreen.classList.remove('hidden'); startScreen.style.display = 'flex'; }
-      resetGameState();
+      homeModal.classList.remove('hidden');
     });
   }
 
+  if (cancelHome) {
+    cancelHome.addEventListener('click', () => {
+      homeModal.classList.add('hidden');
+    });
+  }
+
+  if (confirmHome) {
+    confirmHome.addEventListener('click', () => {
+      homeModal.classList.add('hidden');
+
+      // Esconde elementos do jogo
+      if (gameContainer) {
+        gameContainer.style.display = 'none';
+        gameContainer.classList.add('hidden');
+      }
+      if (gameContent) gameContent.classList.add('hidden');
+      const gameBox = document.getElementById('game-box');
+      if (gameBox) gameBox.classList.add('hidden');
+
+      const mascotContainer = document.getElementById('mascote-game-container');
+      if (mascotContainer) mascotContainer.classList.add('hidden');
+
+      const mascotGame = document.getElementById('mascote-game');
+      if (mascotGame) mascotGame.classList.add('hidden');
+
+      const magicSparkles = document.getElementById('magic-sparkles');
+      if (magicSparkles) magicSparkles.classList.add('hidden');
+
+      // Mostra a tela inicial corretamente
+      if (startScreen) {
+        startScreen.classList.remove('hidden');
+        startScreen.style.display = 'flex';
+      }
+
+      // Resetar variáveis do jogo
+      score = 0;
+      questionCount = 0;
+      lastQuestions = [];
+      playerName = '';
+      if (playerNameInput) playerNameInput.value = '';
+
+      // Resetar mascote da tela inicial
+      if (mascot) {
+        mascot.classList.remove('show');
+        mascot.classList.add('hidden');
+      }
+
+      // Resetar música
+      if (backgroundMusic) {
+        backgroundMusic.volume = originalVolume;
+        backgroundMusic.play().catch(err => console.log(err));
+      }
+    });
+  }
+
+  // Variável de controle
+  let isMusicMuted = false;
+
+  // Função que liga/desliga o som
+  function toggleMusic() {
+    if (!backgroundMusic) return;
+
+    // Alterna mute/desmute
+    isMusicMuted = !isMusicMuted;
+    backgroundMusic.muted = isMusicMuted;
+
+    // Atualiza o ícone do botão
+    gameVolumeBtn.textContent = isMusicMuted ? '🔇' : '🔊';
+  }
+
+  //ULTIMA ALTERAÇÃO THEO
+  function mostrarJogo() {
+    if (gameContainer) {
+      gameContainer.classList.remove('hidden');
+      gameContainer.style.display = 'flex'; // ou 'block', dependendo do layout
+    }
+    if (gameContent) gameContent.classList.remove('hidden');
+  
+    const gameBox = document.getElementById('game-box');
+    if (gameBox) gameBox.classList.remove('hidden');
+  
+    const mascotContainer = document.getElementById('mascote-game-container');
+    if (mascotContainer) mascotContainer.classList.remove('hidden');
+  
+    const mascotGame = document.getElementById('mascote-game');
+    if (mascotGame) mascotGame.classList.remove('hidden');
+  
+    const magicSparkles = document.getElementById('magic-sparkles');
+    if (magicSparkles) magicSparkles.classList.remove('hidden');
+  }
+  //ULTIMA ALTERAÇÃO THEO
+
+
+  // Toca a música assim que possível
+  if (backgroundMusic) {
+    backgroundMusic.volume = 0.4; // volume inicial (de 0 a 1)
+    backgroundMusic.loop = true;  // repete automaticamente
+    backgroundMusic.play().catch(() => {
+      console.log('Som aguardando interação do usuário.');
+    });
+  }
+
+  // Ativa o botão de volume
+  if (gameVolumeBtn) {
+    gameVolumeBtn.addEventListener('click', toggleMusic);
+  }
+
+  //ULTIMA ALTERAÇÃO THEO
+
+
+  // Carrega ranking initial (caso queira ver antes de jogar)
+  carregarRanking().catch(err => console.log("carregarRanking:", err));
+
+// ULTIMA ALTERAÇÃO THEO
   if (playAgainBtn) {
     playAgainBtn.addEventListener('click', () => {
-      // fecha ranking/final e reinicia o jogo mantendo estrutura de telas
-      if (endGameScreen) endGameScreen.classList.add('hidden');
-      if (gameContainer) { gameContainer.classList.remove('hidden'); gameContainer.style.display = 'flex'; }
-      resetForNewMatch();
+  
+      // Fecha a tela de fim/ranking
+      if (endGameScreen) {
+        endGameScreen.classList.add('hidden');
+        endGameScreen.style.display = 'none';
+      }
+  
+      // Garante que o container do jogo fique escondido
+      if (gameContainer) {
+        gameContainer.classList.add('hidden');
+        gameContainer.style.display = 'none';
+      }
+  
+      // Mostra a tela de identificação novamente
+      if (nameScreen) {
+        nameScreen.classList.remove('hidden');
+        nameScreen.style.display = 'flex';
+      }
+  
+      //  Reset de variáveis principais do jogo
+      score = 0;
+      questionCount = 0;
+      lastQuestions = [];
+  
+      // Reseta o nome do jogador (para nova identificação)
+      playerNameInput.value = "";
     });
   }
 
@@ -299,19 +429,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 🔹 Rolagem horizontal dos créditos
-  if (scrollLeftBtn && creditsScroll) {
-    scrollLeftBtn.addEventListener("click", () => {
-      creditsScroll.scrollBy({ left: -200, behavior: "smooth" });
-    });
-  }
-
-  if (scrollRightBtn && creditsScroll) {
-    scrollRightBtn.addEventListener("click", () => {
-      creditsScroll.scrollBy({ left: 200, behavior: "smooth" });
-    });
-  }
 });
+
+//ULTIMA ALTERAÇÃO THEO
+function createStars() {
+  const nameScreen = document.getElementById("name-screen");
+  for (let i = 0; i < 40; i++) {
+  const star = document.createElement("div");
+  star.classList.add("star");
+  star.style.top = `${Math.random() * 100}%`;
+  star.style.left = `${Math.random() * 100}%`;
+  star.style.animationDelay = `${Math.random() * 5}s`;
+  nameScreen.appendChild(star);
+  }
+}
+document.addEventListener("DOMContentLoaded", createStars);
+//ULTIMA ALTERAÇÃO THEO
 
 // ===================== FUNÇÕES DE JOGO =====================
 
@@ -454,7 +587,7 @@ function verificarResposta(chaveEscolhida, questao, botao) {
 
   if (isCorrect) {
     // ✅ ACERTOU
-    try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(() => {}); } } catch {}
+    try { if (soundCorrect) { soundCorrect.currentTime = 0; soundCorrect.play().catch(() => { }); } } catch { }
     const pontos = Number(questao.pontos || 10);
     score += pontos;
     tentativasAtuais = 0;
@@ -472,7 +605,7 @@ function verificarResposta(chaveEscolhida, questao, botao) {
 
   } else {
     // ❌ ERROU
-    try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(() => {}); } } catch {}
+    try { if (soundWrong) { soundWrong.currentTime = 0; soundWrong.play().catch(() => { }); } } catch { }
     tentativasAtuais++;
 
     // botão fica vermelho
@@ -485,7 +618,6 @@ function verificarResposta(chaveEscolhida, questao, botao) {
       } else {
         mascoteFala("❌ Errou, tente de novo!", "erro", 2000);
       }
-
       feedbackMessage && (feedbackMessage.textContent = "Ops! Tente novamente ✨");
 
       // reativa os botões após um tempinho
@@ -508,6 +640,8 @@ function verificarResposta(chaveEscolhida, questao, botao) {
       setTimeout(() => {
         feedbackMessage && (feedbackMessage.textContent = "");
         mostrarPergunta();
+        questionIndex++;
+      updateUI();
       }, 2200);
     }
   }
@@ -689,8 +823,8 @@ function mostrarPerguntaOculta() {
   let opcoesArray = Array.isArray(atual.opcoes)
     ? atual.opcoes
     : Array.isArray(atual.alternativas)
-    ? atual.alternativas
-    : Object.values(atual.alternativas || {});
+      ? atual.alternativas
+      : Object.values(atual.alternativas || {});
 
   const corretaIndex = typeof atual.correta === "number"
     ? atual.correta
@@ -705,9 +839,9 @@ function mostrarPerguntaOculta() {
 
       if (acertou) {
         scoreOculta += Number(atual.pontos || 0);
-        try { soundCorrect?.play(); } catch {}
+        try { soundCorrect?.play(); } catch { }
       } else {
-        try { soundWrong?.play(); } catch {}
+        try { soundWrong?.play(); } catch { }
       }
 
       // ✅ Mostra dica se errar
@@ -738,25 +872,47 @@ function verificarFaseOculta(pontuacaoFinal) {
 
   // Se o jogador atingiu ou superou a pontuação mínima
   if (pontuacaoFinal >= pontosMinimosParaFaseOculta) {
-    console.log("✨ Fase oculta desbloqueada! ✨");
+    console.log("✅ Fase oculta desbloqueada!");
 
-    // Esconde o ranking antes de iniciar a fase oculta
-    if (endGameScreen) endGameScreen.style.display = 'none';
+    // Garante que ranking e jogo desapareçam
+    if (gameContainer) {
+      gameContainer.classList.add('hidden');
+      gameContainer.style.display = 'none';
+    }
+    if (endGameScreen) {
+      endGameScreen.classList.add('hidden');
+      endGameScreen.style.display = 'none';
+    }
 
-    // Inicia a fase oculta e mostra a primeira pergunta
+    // Remove atributo de ranking ativo (caso estivesse setado)
+    document.body.removeAttribute("data-ranking-active");
+
+    // Inicia fase oculta
     iniciarFaseOculta();
     mostrarPerguntaOculta();
+    } else {
+      console.log("⚠️ Fase oculta bloqueada. Mostrando ranking normal.");
 
-    // (opcional) Mensagem no console para debug
-    console.log("🌙 Fase oculta iniciada com sucesso!");
-  }
-  // Caso o jogador não tenha pontos suficientes
-  else {
-    console.log("Pontuação insuficiente. Fase oculta não desbloqueada.");
+    // Oculta o jogo
+    if (gameContainer) {
+      gameContainer.classList.add('hidden');
+      gameContainer.style.display = 'none';
+    }
 
-    // Mostra o ranking normalmente
-    if (endGameScreen) endGameScreen.classList.remove("hidden");
-    endGameScreen.style.display = "flex";
+    // 🔸 Garante que o body volte ao normal
+    document.body.style.position = "static";
+    document.body.style.overflow = "auto";
+    document.body.setAttribute("data-ranking-active", "true");
+
+    // Mostra ranking com layout limpo
+    if (endGameScreen) {
+      endGameScreen.classList.remove('hidden');
+      endGameScreen.style.display = 'flex';
+      endGameScreen.style.position = 'fixed'; // 🔥 FIXA centralizado corretamente
+      endGameScreen.style.inset = '0';        // ocupa toda tela
+      endGameScreen.style.zIndex = '100';
+      endGameScreen.scrollTo(0, 0);           // evita ranking cortado
+    }
 
     // Atualiza o texto da pontuação final (para clareza visual)
     const finalScoreText = document.getElementById("final-score-text");
@@ -765,6 +921,7 @@ function verificarFaseOculta(pontuacaoFinal) {
     }
   }
 }
+//FINAL ULTIMA ALTERAÇÃO THEO
 
 // ===============================
 // 🌌 FINAL DA FASE OCULTA + SALVAR NO SUPABASE

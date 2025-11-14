@@ -14,6 +14,30 @@
     
   <!-- Theo Tela Inicial -->
   <div id="start-screen">
+   <button id="admin-btn"
+  class="fixed bottom-4 left-4 bg-purple-700 hover:bg-purple-800 
+         text-white font-bold py-2 px-4 rounded-xl shadow-lg
+         z-50 text-sm opacity-70 hover:opacity-100 transition">
+  🔐 Admin
+</button>
+<!-- 🔹 Modal de Senha -->
+<div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 text-center shadow-xl max-w-sm w-full">
+    <h2 class="text-xl font-bold mb-3">Acesso Administrativo</h2>
+    <p class="mb-4">Digite a senha para apagar todo o ranking:</p>
+    <input
+      type="password"
+      id="admin-password"
+      placeholder="Senha"
+      class="border border-gray-400 rounded px-3 py-2 w-full text-center mb-4"
+    />
+    <div class="flex justify-center gap-3">
+      <button id="cancel-admin" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancelar</button>
+      <button id="confirm-admin" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Confirmar</button>
+    </div>
+    <p id="admin-feedback" class="text-sm mt-3 text-gray-600"></p>
+  </div>
+</div>
    <!--Som-->
     <audio id="background-music" loop>
         <source src="sommagic2.m4a" type="audio/mpeg">
@@ -36,34 +60,7 @@
   <!-- Tela de identificação -->
   <div id="name-screen" class="hidden">
     <!-- 🔹 Botão de Administração -->
-<button id="admin-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-4">
-  Painel Admin
-</button>
 
-<!-- 🔹 Modal de Senha -->
-<div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl p-6 text-center shadow-xl max-w-sm w-full">
-    <h2 class="text-xl font-bold mb-3">Acesso Administrativo</h2>
-    <p class="mb-4">Digite a senha para apagar todo o ranking:</p>
-    <input
-      type="password"
-      id="admin-password"
-      placeholder="Senha"
-      class="border border-gray-400 rounded px-3 py-2 w-full text-center mb-4"
-    />
-    <div class="flex justify-center gap-3">
-      <button id="cancel-admin" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancelar</button>
-      <button id="confirm-admin" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Confirmar</button>
-    </div>
-    <p id="admin-feedback" class="text-sm mt-3 text-gray-600"></p>
-  </div>
-</div>
-
-    <!-- Botão Voltar -->
-    <button id="back-btn" class="back-btn">
-        <img src="coelho.png" alt="Voltar" class="icon-magico">
-        <span class="texto-voltar">Voltar</span>
-    </button>
     
     <h1 class="title2">Digite seu nome:</h1>
 
@@ -187,10 +184,6 @@
             <div id="progress-bar"></div>
         </div>
 
-        <div id="nivel">
-            Nível: <span id="level">1</span>
-        </div>
-
         <section id="game-content">
             <div id="question-area">
                 <div id="question"></div>
@@ -227,7 +220,7 @@
       <div id="opcoes-ocultas"></div>
     </div>
 
-    <p id="pontuacao-oculta">Pontuação: <span id="score-oculta">0</span> / 5</p>
+    <p id="pontuacao-oculta">Pontuação: <span id="score-oculta">0</span>
 
     <button id="btn-finalizar-oculta" class="oculta-btn hidden">Finalizar Desafio Oculto 🪄</button>
   </div>
@@ -263,23 +256,23 @@
    <div class="podium-info">
   <div class="player second">
     <h3>2° Lugar</h3>
-    <p class="player-name" id="name-second">-Ana-</p>
-    <p class="player-level" id="level-second">Nível: -Facil-</p>
-    <p class="player-score" id="score-second">Pontos: -8-</p>
+    <p class="player-name" id="name-second">/</p>
+    <p class="player-level" id="level-second">/</p>
+    <p class="player-score" id="score-second">/</p>
   </div>
 
   <div class="player first">
     <h3>1° Lugar</h3>
-    <p class="player-name" id="name-first">-Theo-</p>
-    <p class="player-level" id="level-first">Nível: -Medio-</p>
-    <p class="player-score" id="score-first">Pontos: -4-</p>
+    <p class="player-name" id="name-first">/</p>
+    <p class="player-level" id="level-first">/</p>
+    <p class="player-score" id="score-first">/</p>
   </div>
 
   <div class="player third">
     <h3>3° Lugar</h3>
-    <p class="player-name" id="name-third">-Vitor-</p>
-    <p class="player-level" id="level-third">Nível: -Dificl-</p>
-    <p class="player-score" id="score-third">Pontos: -10-</p>
+    <p class="player-name" id="name-third">/</p>
+    <p class="player-level" id="level-third">/</p>
+    <p class="player-score" id="score-third">/</p>
   </div>
 </div>
 

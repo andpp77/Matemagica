@@ -385,6 +385,11 @@
 }
 
 /* =======================Botao de Créditos ======================= */
+.game-home-btn{
+  z-index: 1000;
+  display: flex;
+}
+
 .hidden {
   display: none !important;
 }
@@ -412,9 +417,9 @@
   position: relative;
   background: rgba(255,255,255,0.05);
   border-radius: 1.5rem;
-  padding: 2rem;
-  max-width: 650px;
+  padding: 0.5rem;
   width: 90%;
+  height: 570px;
   z-index: 10;
   box-shadow: 0 0 40px rgba(255,255,255,0.2);
   border: 2px solid rgba(255,255,255,0.3);
@@ -443,8 +448,9 @@
 .credits-scroll {
   display: flex;
   overflow: hidden; /* esconde a barra de rolagem */
-  gap: 1rem;
-  padding: 1rem 0;
+  gap: 3rem;
+  padding: 1.5rem ;
+  justify-content: center;
   scroll-behavior: smooth;
   position: relative; 
 }
@@ -516,19 +522,7 @@
 
 #scroll-left,
 #scroll-right {
-    position: absolute; 
-    top: 40%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.1); /* fundo quase transparente */
-    border: none; /* remove a borda padrão */
-    font-size: 2rem;
-    cursor: pointer;
-    z-index: 100;
-    padding: 0.1rem 0.1rem;
-    appearance: none; /* remove aparência nativa do botão */
-    -webkit-appearance: none; /* Safari/Chrome */
-    outline: none; /* remove contorno ao focar */
-    color: rgba(255, 255, 255, 0.3); /* seta quase transparente */
+  display: none !important;
 }
 
 #scroll-left {
@@ -898,7 +892,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 10000;
 }
 
 #home-modal.hidden {
@@ -1860,6 +1854,642 @@
   transform: scale(1.05);
   box-shadow: 0 0 25px #d8b4fe;
 }
+
+.hidden {
+  display: none !important;
+}
+
+/* ===============================
+   TELA DE RANKING FINAL - ANAA - ULTIMA ALTERAÇÃO THEO
+================================ */
+
+/*ULTIMA ALTERAÇÃO THEO*/
+#end-screen {
+  position: fixed;
+  inset: 0;
+  display: none; /*ULTIMA ALTERAÇÃO THEO*/
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: url('nova_sala_mago.png') center center / cover no-repeat;
+  background-color: #29192e;
+  backdrop-filter: blur(2px);
+  color: #fff;
+  font-family: 'Luckiest Guy', cursive;
+  z-index: 100; 
+  width: 100vw;
+  height: 100vh;
+  padding-top: 30px;
+}
+
+#end-screen.hidden {
+  display: none !important;
+}
+
+#end-screen:not(.hidden) {
+  display: flex !important;
+}
+
+/*ULTIMA ALTERAÇÃO THEO*/
+
+.scroll-container {
+  position: absolute;
+  top: -6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(180px, 45vw, 260px); /* ALTERADO THEO responsivo: min 180px, max 260px */
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /*ULTIMA ALTERAÇÃO THEO*/
+}
+
+.scroll-image {
+  width: 262px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgb(0 0 0));
+}
+
+.scroll-content {
+  position: absolute;
+  top: 47%;
+  left: 49%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  text-align: center;
+  color: #000000;
+  font-family: "Poppins", sans-serif;
+  text-shadow: 0 1px 2px #676767;
+}
+
+.scroll-title {
+  font-family: 'Luckiest Guy', cursive;
+  color: #8e0000;
+  font-size: clamp(1.53rem, 2.5vw, 1.4rem);
+  font-weight: 230; 
+  margin-bottom: 16px;
+  letter-spacing: 0.9px;
+  text-shadow: 0 0 12px rgb(234, 213, 31, 0.9);
+}
+
+.scroll-content p {
+  text-align: center;
+  font-size: clamp(0.80rem, 2vw, 0.9rem);
+  font-weight: 790;
+  margin-bottom: 0.8rem;
+  color:#2e1500;
+}
+
+.scroll-btn {
+  background: linear-gradient(180deg, #2b1654, #520f46);
+  color: #eac4c4;
+  font-weight: 600;
+  border: none;
+  padding: 9px 8px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: clamp(0.6rem, 2vw, 0.75rem);
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  margin-top: -9px;
+  box-shadow: 0 0 10px rgb(255 230 93 / 60%);
+  animation: magicGlow 2s infinite ease-in-out;
+  z-index: 10; /*ULTIMA ALTERAÇÃO THEO*/
+  pointer-events: auto;
+}
+.scroll-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(255, 255, 150, 0.8);
+  background: linear-gradient(180deg, #ffe27a, #b8771e);
+}
+
+/*efeito brilho magico*/
+@keyframes magicGlow{
+  0%{
+    box-shadow: 0 0 10px rgb(225 192 14 / 85%);
+  }
+  50%{
+    box-shadow: 0 0 25px rgb(255 255 41);
+  }
+  100%{
+    box-shadow: 0 0 10px rgb(228 195 17);
+  }
+}
+
+/*efeito brilho magico*/
+@keyframes magicGlow{
+  0%{
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+  50%{
+    box-shadow: 0 0 25px rgba(255, 255, 150, 1);
+  }
+  100%{
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+}
+
+/* ===============================
+   PODIO CENTRAL
+================================ */
+.podium-container {
+  position: absolute;
+  bottom: -27%;
+  left: 49%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.podium-image {
+  width: 563px;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(255, 230, 150, 0.5));
+}
+
+/* ===============================
+   TOP 3 - PERGAMINHOS DO PODIO
+================================ */
+.top3-container {
+  position: absolute;
+  bottom: 135px; /* altura exata sobre o podio */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 5;
+}
+
+.scroll-1, .scroll-2, .scroll-3 {
+  position: absolute;
+}
+
+.scroll-1 {
+  left: 50%;
+  transform: translate(-50%, 8px) scale(1.17);
+  z-index: 77;
+}
+
+.scroll-2 {
+  left: 17%;
+  transform: translate(-99%, 78px) scale(1.1);
+}
+
+.scroll-3 {
+  right: 20%;
+  transform: translate(89%, 90px) scale(1.1);
+}
+
+/* ===============================
+   PÓDIO TOP 3- NOMES, NÍVEIS E PONTOS -- NOVA ATUALIZAÇÃO- ANA
+================================ */
+
+.podium-info {
+  position: absolute;
+  top: 67%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 850px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  text-align: center;
+  font-family: 'Luckiest Guy', cursive;
+  z-index: 30;
+}
+
+/* BLOCO GERAL DE CADA POSIÇÃO */
+.podium-info .player {
+  position: absolute;
+  background: transparent; 
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 0 2px #000;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* PRIMEIRO LUGAR  */
+.podium-info .first {
+  top: -74px;         
+  left: 50%;        
+  transform: translateX(-50%);
+  width: 230px;    
+}
+
+/* SEGUNDO LUGAR — À ESQUERDA */
+.podium-info .second {
+    top: -17px;
+    left: calc(53% - 173px);
+    transform: translateX(-50%);
+    width: 190px;
+}
+
+/* TERCEIRO LUGAR — À DIREITA */
+.podium-info .third {
+    top: -5px;
+    left: calc(49% + 133px);
+    transform: translateX(-50%);
+    width: 190px;
+}
+
+/* EFEITO HOVER (somente pulsar) */
+.podium-info .player:hover {
+  transform: translateX(-50%) scale(1.05);
+  text-shadow: 0 0 12px #ffcc00;
+}
+
+/* TEXTOS */
+.podium-info h3 {
+  color: #17084b;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  text-shadow: 0 0 8px #ffcc00;
+}
+
+.podium-info .player-name {
+  font-size: 1.1rem;
+  color: #fff;
+  text-shadow: 0 0 6px #ffb347;
+}
+
+.podium-info .player-level {
+  font-size: 0.8rem;
+  color: #000;
+  text-shadow: 0 0 6px #a78bfa;
+}
+
+.podium-info .player-score {
+  font-size: 0.9rem;
+  color: #81150c;
+  text-shadow: 0 0 8px #ff8800;
+}
+
+
+/* ===============================
+   COLUNAS LATERAIS DE RANKING
+================================ */
+.ranking-columns {
+  position: absolute;
+  top: 50%;
+  left: 56%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: space-between;
+  width: 85%;
+  max-width: 1200px;
+  align-items: flex-start;
+  z-index: 15;
+  pointer-events: auto;
+  gap: 40px;
+}
+
+.ranking-column {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Coluna esquerda */
+.left-column {
+  align-items: flex-end;
+  margin-top: 5px;
+}
+
+/* Coluna direita */
+.right-column {
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 2%;
+  right: 5%;
+  transform: translateY(-2px) translateX(430px)
+}
+/* ULTIMA ALTERAÇÃO THEO
+.scroll-container,
+.podium-container{
+  pointer-events: none;
+}*/
+/* ===============================
+   CARTAS MAGICAS
+================================ */
+.small-scroll {
+  background: rgba(100, 50, 150, 0.7); 
+  border: 3px solid #ff00ff; 
+  border-radius: 25px;
+  padding: 10px;
+  box-shadow: 0 0 15px #ff00ff, inset 0 0 10px #ff00ff; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 140px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  pointer-events: auto;
+  z-index: 21;
+}
+.small-scroll:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 25px #ff00ff, inset 0 0 10px #ff00ff;
+}
+
+/* icones e textos */
+.nivel-icon {
+  font-size: 1.3rem;
+  margin-right: 3px;
+}
+.small-scroll h3 {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 0.95rem;
+  color: #ffde54;
+  text-shadow: 1px 1px 0 #4a044e;
+  margin-bottom: 0;
+}
+.small-scroll p {
+  font-size: 0.80rem;
+  color: #d8b4fe;
+  margin-left: 10px;
+  margin-bottom: 0.2rem;
+}
+
+/* Cristais */
+.crystals {
+  color: #ff00ff;
+  font-size: 0.85rem;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.crystals.one-star,
+.crystals.two-stars {
+  justify-content: center;
+  margin-right: 0;
+}
+
+
+
+/**======================RESPONSIVIDADE THEO RANKING/
+
+
+ /* RESPONSIVIDADE - PÓDIO E PERGAMINHOS */
+
+/* Tablets e celulares (até 768px) */
+@media (max-width: 768px) {
+
+  .scroll-container {
+    top: 8%;
+    width: 60vw;
+  }
+
+  .scroll-content {
+    width: 80%;
+  }
+
+  /* CONTAINER DO PÓDIO NO FINAL DA TELA */
+  .podium-container {
+    position: absolute;
+    bottom: 180px;              
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center ;
+    z-index: 5;
+    background: transparent;
+  }
+
+  /* IMAGEM DO PÓDIO */
+  .podium-image {
+    width: 160%;
+    align-self: flex-end;
+  }
+
+  /* PERGAMINHOS DO TOP 3 ACIMA DO PÓDIO */
+  .top3-container {
+    position: absolute;
+    bottom: 150px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px; /* largura dos 3 pergaminhos*/
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 90%;
+    z-index: 10;
+  }
+
+  .scroll-1, .scroll-2, .scroll-3 {
+    position: relative;
+    width: 140px;
+    transform: none;
+    scale: 0.95;
+  }
+
+  /* CENTRAL MAIS ALTO */
+  .scroll-1 {
+    margin-bottom: 45px;
+    left: auto;
+  }
+
+  /* 1 e 2 nivelados */
+  .scroll-2 {
+    margin-bottom: 25px;
+    left: 8%;
+  }
+
+  .scroll-3 {
+    margin-bottom: 25px;
+    right: 8%;
+  }
+
+  /* LISTA DE JOGADORES ABAIXO DO PÓDIO */
+  .ranking-columns {
+    position: relative;
+    margin-top: 100vh; 
+    display: flex;
+    flex-direction: column ;
+    align-items: center;    
+    gap: 40px;             
+    width: 100%;
+    padding-bottom: 150px;
+    box-sizing: border-box;
+  }
+  
+  /* Coluna da esquerda */
+  .left-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center  ;    
+    width: 300px  ;          
+    margin: 0 auto ;         
+    gap: 15px ;
+    box-sizing: border-box;
+  }
+  
+  /* Coluna da direita */
+  .right-column {
+    transform: none ;
+    display: flex ;
+    flex-direction: column ;
+    align-items: center ;    
+    width: 300px ;           
+    margin: 0 auto ;         
+    gap: 15px ;
+    box-sizing: border-box;
+  }
+  
+  /* Pergaminhos */
+  .small-scroll {
+    width: 140px ;           
+    max-width: 100% ;
+    text-align: center ;
+    margin: 0 auto ;        
+    font-size: 0.8rem ;
+    padding: 6px ;
+  }
+
+
+
+  .small-scroll h3 {
+    font-size: 0.9rem ;
+  }
+
+  .crystals {
+    font-size: 0.75rem ;
+  }
+
+
+  .scroll-image {
+    width: 100% ;
+    height: auto ;
+  }
+
+  
+  
+  /* Permitir rolagem da tela */
+  #end-screen {
+    overflow-y: auto ;  /* ativa rolagem vertical */
+    overflow-x: hidden ;
+  }
+}
+
+
+/* ===============================
+   FASE OCULTA - DESAFIO SECRETO-ANA- NOVA ATUALIZAÇÃO
+================================ */
+#fase-oculta {
+  position: fixed;
+  inset: 0;
+  background: url('tela_fase_oculta.jpeg') center/cover no-repeat; /*depois adcionar a imagem de fundo*/
+  color: #fff;
+  font-family: 'Luckiest Guy', cursive;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+#fase-oculta.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.oculta-container {
+  background: rgba(198 182 151 / 6%);
+  border: 3px solid #28163a;
+  border-radius: 25px;
+  padding: 2rem 3rem;
+  box-shadow: 0 0 30px #a855f7, inset 0 0 10px #6d28d9;
+  max-width: 600px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.oculta-titulo {
+  font-size: 1.5rem;
+  color: #18064a;
+  text-shadow: 0 0 15px #1c072f;
+  margin-bottom: 10px;
+}
+
+.oculta-texto {
+  font-size: 1.3rem;
+  color: #e9d5ff;
+  margin-bottom: 25px;
+}
+
+#pergunta-oculta {
+  font-size: 1.2rem;
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+#opcoes-ocultas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+#opcoes-ocultas button {
+  background: linear-gradient(90deg, #451196, #210041);
+  border: none;
+  border-radius: 20px;
+  padding: 10px;
+  color: white;
+  font-weight: 200;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+#opcoes-ocultas button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #a855f7;
+}
+
+#pontuacao-oculta {
+  margin-top: 15px;
+  color: #16032d;
+  font-size: 1rem;
+}
+
+#btn-finalizar-oculta {
+  background: linear-gradient(180deg, #290e67, #29085c);;
+  color: #fff;
+  font-weight: 200;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+  margin-top: 25px;
+}
+
+#btn-finalizar-oculta:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 25px rgba(167, 139, 250, 1);
+  background: linear-gradient(180deg, #a78bfa, #7c3aed);
+}
+
 
 .hidden {
   display: none !important;
